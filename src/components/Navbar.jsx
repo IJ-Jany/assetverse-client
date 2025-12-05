@@ -3,6 +3,9 @@ import { useState } from "react";
 import { FaHome, FaUserTie, FaUsers, FaSignInAlt } from "react-icons/fa";
 import { MdWork, MdDashboardCustomize } from "react-icons/md";
 import { GiTakeMyMoney } from "react-icons/gi";
+import Logo from "./Logo"
+import Logoimg from '../assets/logo.png'
+import { NavLink } from "react-router";
 
 const Navbar = ({ user, role }) => {
   const [open, setOpen] = useState(false);
@@ -141,47 +144,118 @@ const Navbar = ({ user, role }) => {
     //     </div>
     //   </div>
     // </div>
-    <div className="navbar bg-base-100 shadow-sm">
-  <div className="navbar-start">
-    <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
+    <div className="navbar bg-base-100 shadow-sm px-4 lg:px-8">
+      
+      {/* LEFT SIDE */}
+      <div className="navbar-start">
+        {/* MOBILE DROPDOWN */}
+        <div className="dropdown">
+          <label tabIndex={0} className="btn btn-ghost lg:hidden">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </label>
+          <ul
+            tabIndex={0}
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            <li>
+              <NavLink
+                to="/"
+                className="flex items-center gap-2 font-medium hover:text-blue-600"
+              >
+                <FaHome /> Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/join-employee"
+                className="flex items-center gap-2 font-medium hover:text-blue-600"
+              >
+                <FaUsers /> Join as Employee
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/join-hr"
+                className="flex items-center gap-2 font-medium hover:text-blue-600"
+              >
+                <FaUserTie /> Join as HR Manager
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+
+        {/* LOGO */}
+        <NavLink to="/" className=" normal-case text-xl">
+          <Logo />
+        </NavLink>
       </div>
-      <ul
-        tabIndex="-1"
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-        <li><a>Item 1</a></li>
-        <li>
-          <a>Parent</a>
-          <ul className="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </li>
-        <li><a>Item 3</a></li>
-      </ul>
+
+      {/* CENTER MENU FOR DESKTOP */}
+      <div className="navbar-center hidden lg:flex">
+        <ul className="menu menu-horizontal px-1 gap-4">
+          <li>
+            <NavLink
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
+            >
+              <FaHome /> Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/join-employee"
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
+            >
+              <FaUsers /> Join as Employee
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/join-hr"
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
+            >
+              <FaUserTie /> Join as HR Manager
+            </NavLink>
+          </li>
+        </ul>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <div className="navbar-end">
+        <NavLink
+          to="/login"
+          className="
+            btn 
+            flex items-center gap-2
+            bg-gradient-to-r from-blue-600 to-purple-600 
+            text-white font-semibold 
+            border-none
+            shadow-md
+            transition-all duration-300 
+            hover:scale-105 
+            hover:shadow-lg 
+            hover:from-blue-700 hover:to-purple-700
+            active:scale-95
+          "
+        >
+          <FaSignInAlt className="text-lg" />
+          Login
+        </NavLink>
+      </div>
     </div>
-    <a className="btn btn-ghost text-xl">daisyUI</a>
-  </div>
-  <div className="navbar-center hidden lg:flex">
-    <ul className="menu menu-horizontal px-1">
-      <li><a>Item 1</a></li>
-      <li>
-        <details>
-          <summary>Parent</summary>
-          <ul className="p-2 bg-base-100 w-40 z-1">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
-      </li>
-      <li><a>Item 3</a></li>
-    </ul>
-  </div>
-  <div className="navbar-end">
-    <a className="btn">Button</a>
-  </div>
-</div>
   );
 };
 
