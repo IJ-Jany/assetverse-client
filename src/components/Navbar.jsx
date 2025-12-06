@@ -1,3 +1,4 @@
+// Navbar.jsx
 import { Link, NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../providers/AuthContext";
@@ -9,18 +10,18 @@ import useRole from "../hooks/useRole";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
-  const {role} = useRole()
+  const { role, loading } = useRole(user?.email); // role + loading
 
-  const defaultAvatar = (
-    <FaUserCircle className="text-3xl text-gray-500" />
-  );
+  const defaultAvatar = <FaUserCircle className="text-3xl text-gray-500" />;
+
+  // Show nothing if loading
+  if (user && loading) return null;
 
   return (
     <div className="navbar bg-white shadow-sm px-4 lg:px-8 sticky top-0 z-50">
 
-      {/* LEFT SIDE ------------------------------------------------------- */}
+      {/* LEFT SIDE */}
       <div className="navbar-start">
-        {/* MOBILE MENU DROPDOWN */}
         <div className="dropdown lg:hidden">
           <label tabIndex={0} className="btn btn-ghost">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
@@ -30,79 +31,62 @@ const Navbar = () => {
             </svg>
           </label>
 
-          {/* MOBILE MENU LINKS */}
-          <ul tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-white rounded-box w-52">
-            
+          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-white rounded-box w-52">
             <li><NavLink to="/"><FaHome /> Home</NavLink></li>
             <li><NavLink to="/register-employee"><FaUsers /> Join Employee</NavLink></li>
             <li><NavLink to="/register-hr"><FaUserTie /> Join HR</NavLink></li>
 
-            {/* Dashboard Only if Logged In */}
             {user && (
-              <li>
-                <NavLink to="/dashboard">
-                  <MdDashboardCustomize /> Dashboard
-                </NavLink>
-              </li>
+              <li><NavLink to="/dashboard"><MdDashboardCustomize /> Dashboard</NavLink></li>
             )}
+
+            {/* {user && role === "employee" && ( */}
+              <li><NavLink to="/assets"><MdWork /> Assets</NavLink></li>
+            {/* // )} */}
           </ul>
         </div>
 
-        {/* LOGO */}
         <Link to="/" className="text-xl font-bold"><Logo /></Link>
       </div>
 
-      {/* CENTER LINKS ---------------------------------------------------- */}
+      {/* CENTER LINKS */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal gap-4">
           <li><NavLink to="/" className="px-3 py-2 hover:bg-blue-50"><FaHome /> Home</NavLink></li>
           <li><NavLink to="/register-employee" className="px-3 py-2 hover:bg-blue-50"><FaUsers /> Join Employee</NavLink></li>
           <li><NavLink to="/register-hr" className="px-3 py-2 hover:bg-blue-50"><FaUserTie /> Join HR</NavLink></li>
 
-          {/* Dashboard link when logged in */}
           {user && (
-            <li>
-              <NavLink to="/dashboard" className="px-3 py-2 hover:bg-blue-50">
-                <MdDashboardCustomize /> Dashboard
-              </NavLink>
-            </li>
+            <li><NavLink to="/dashboard" className="px-3 py-2 hover:bg-blue-50"><MdDashboardCustomize /> Dashboard</NavLink></li>
           )}
+
+          {/* {user && role === "employee" && ( */}
+            <li><NavLink to="/assets" className="px-3 py-2 hover:bg-blue-50"><MdWork /> Assets</NavLink></li>
+          {/* )} */}
         </ul>
       </div>
 
-      {/* RIGHT SIDE ----------------------------------------------------- */}
+      {/* RIGHT SIDE */}
       <div className="navbar-end">
-
-        {/* If USER NOT LOGGED IN → Show Login */}
         {!user && (
           <NavLink
             to="/login"
-            className="
-              btn bg-gradient-to-r from-blue-600 to-purple-600 
-              text-white border-none shadow-md 
-              hover:scale-105 transition-all
-            "
+            className="btn bg-gradient-to-r from-blue-600 to-purple-600 text-white border-none shadow-md hover:scale-105 transition-all"
           >
             <FaSignInAlt /> Login
           </NavLink>
         )}
 
-        {/* If USER LOGGED IN → Show Avatar Dropdown */}
         {user && (
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="cursor-pointer">
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500">
-                {user.photoURL ? (
-                  <img src={user.photoURL} alt="profile" />
-                ) : defaultAvatar}
+                {user.photoURL ? <img src={user.photoURL} alt="profile" /> : defaultAvatar}
               </div>
             </label>
 
-            <ul tabIndex={0}
-              className="dropdown-content menu p-3 shadow bg-white rounded-box w-56">
-
-              {/* EMPLOYEE MENU -------------------------------------- */}
+            <ul tabIndex={0} className="dropdown-content menu p-3 shadow bg-white rounded-box w-56">
+              {/* EMPLOYEE MENU */}
               {role === "employee" && (
                 <>
                   <li><Link to="/my-assets"><MdWork /> My Assets</Link></li>
@@ -111,7 +95,7 @@ const Navbar = () => {
                 </>
               )}
 
-              {/* HR MENU -------------------------------------------- */}
+              {/* HR MENU */}
               {role === "hr" && (
                 <>
                   <li><Link to="/assets"><MdWork /> Asset List</Link></li>
@@ -122,19 +106,11 @@ const Navbar = () => {
                 </>
               )}
 
-              {/* COMMON MENU ----------------------------------------- */}
               <li><Link to="/profile"><FaUserTie /> Profile</Link></li>
-
-              {/* LOGOUT */}
               <li>
                 <button
                   onClick={logOut}
-                  className="
-                    btn mt-2 
-                    bg-gradient-to-r from-red-500 to-orange-500 
-                    text-white border-none shadow 
-                    hover:scale-105
-                  "
+                  className="btn mt-2 bg-gradient-to-r from-red-500 to-orange-500 text-white border-none shadow hover:scale-105"
                 >
                   Logout
                 </button>

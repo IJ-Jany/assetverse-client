@@ -15,6 +15,8 @@ import EmployeeList from "../pages/dashboard/hr/EmployeeList";
 import Requests from "../pages/dashboard/hr/Requests";
 import UpgradePackage from "../pages/dashboard/hr/UpgradePackage";
 import Profile from "../pages/dashboard/Profile";
+import AssetsList from "../components/AssetsList";
+import HRRequests from "../pages/dashboard/hr/Requests";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +26,10 @@ export const router = createBrowserRouter([
     children: [
       { path: "/",
         element: <Home />
+      },
+      {
+        path:'/assets',
+       element: <AssetsList/>
       }
     ]
   },
@@ -70,10 +76,8 @@ export const router = createBrowserRouter([
          path: "employee-list", 
          element: <EmployeeList />
       },
-      { 
-        path: "requests", 
-        element: <Requests /> 
-      },
+     
+{ path: "requests", element: <HRRequests /> },
       { 
         path: "upgrade-package",
          element: <UpgradePackage />
