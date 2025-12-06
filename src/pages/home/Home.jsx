@@ -6,6 +6,7 @@ import Testimonials from '../../components/Testimonial';
 import HowItWorks from '../../components/Howitworks';
 import Faq from '../../components/Faq';
 import Contact from '../../components/Contact';
+import Packages from '../../components/Packages';
 
 const Home = () => {
     return (
@@ -13,6 +14,7 @@ const Home = () => {
             <Hero/>
             <About/>
             <Features/>
+            <Packages/>
             <Testimonials/>
             <HowItWorks/>
             <Faq/>

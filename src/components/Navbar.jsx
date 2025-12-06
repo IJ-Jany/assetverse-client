@@ -1,259 +1,147 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { FaHome, FaUserTie, FaUsers, FaSignInAlt } from "react-icons/fa";
+import { Link, NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../providers/AuthContext";
+import { FaHome, FaUsers, FaUserTie, FaSignInAlt, FaUserCircle } from "react-icons/fa";
 import { MdWork, MdDashboardCustomize } from "react-icons/md";
 import { GiTakeMyMoney } from "react-icons/gi";
-import Logo from "./Logo"
-import Logoimg from '../assets/logo.png'
-import { NavLink } from "react-router";
+import Logo from "./Logo";
+import useRole from "../hooks/useRole";
 
-const Navbar = ({ user, role }) => {
-  const [open, setOpen] = useState(false);
+const Navbar = () => {
+  const { user, logOut } = useContext(AuthContext);
+  const {role} = useRole()
+
+  const defaultAvatar = (
+    <FaUserCircle className="text-3xl text-gray-500" />
+  );
 
   return (
-    // <div className="bg-white shadow sticky top-0 z-50">
-    //   <div className="navbar max-w-7xl mx-auto px-4">
+    <div className="navbar bg-white shadow-sm px-4 lg:px-8 sticky top-0 z-50">
 
-    //     {/* LEFT - LOGO */}
-    //     <div className="flex-1">
-    //       <Link
-    //         to="/"
-    //         className="text-2xl font-bold tracking-wide bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-3 py-1 rounded-md"
-    //       >
-    //         AssetVerse
-    //       </Link>
-    //     </div>
-
-    //     {/* MOBILE MENU BUTTON */}
-    //     <div className="lg:hidden">
-    //       <button className="btn btn-ghost" onClick={() => setOpen(!open)}>
-    //         ☰
-    //       </button>
-    //     </div>
-
-    //     {/* NAV LINKS */}
-    //     <div
-    //       className={`lg:flex items-center gap-6 absolute lg:static bg-white w-full left-0 px-6 py-4 lg:py-0 shadow lg:shadow-none transition-all ${
-    //         open ? "top-16" : "-top-96"
-    //       }`}
-    //     >
-    //       <Link
-    //         className="flex items-center gap-2 font-medium hover:text-blue-600"
-    //         to="/"
-    //       >
-    //         <FaHome /> Home
-    //       </Link>
-
-    //       <Link
-    //         className="flex items-center gap-2 font-medium hover:text-blue-600"
-    //         to="/join-employee"
-    //       >
-    //         <FaUsers /> Join Employee
-    //       </Link>
-
-    //       <Link
-    //         className="flex items-center gap-2 font-medium hover:text-blue-600"
-    //         to="/join-hr"
-    //       >
-    //         <FaUserTie /> Join HR Manager
-    //       </Link>
-
-    //       {/* AUTH SECTION */}
-    //       {!user ? (
-    //         <Link
-    //           to="/login"
-    //           className="btn btn-sm bg-blue-600 text-white flex items-center gap-1"
-    //         >
-    //           <FaSignInAlt /> Login
-    //         </Link>
-    //       ) : (
-    //         <div className="dropdown dropdown-end">
-    //           <div tabIndex={0} role="button" className="avatar">
-    //             <div className="w-10 rounded-full ring ring-blue-500 ring-offset-base-100 ring-offset-2 cursor-pointer">
-    //               <img src={user?.photoURL} alt="profile" />
-    //             </div>
-    //           </div>
-
-    //           {/* DROPDOWN MENU */}
-    //           <ul
-    //             tabIndex={0}
-    //             className="dropdown-content menu p-2 shadow bg-white rounded-md w-52"
-    //           >
-    //             {role === "employee" && (
-    //               <>
-    //                 <li>
-    //                   <Link to="/my-assets">
-    //                     <MdWork /> My Assets
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/my-team">
-    //                     <FaUsers /> My Team
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/request-asset">
-    //                     <MdDashboardCustomize /> Request Asset
-    //                   </Link>
-    //                 </li>
-    //               </>
-    //             )}
-
-    //             {role === "hr" && (
-    //               <>
-    //                 <li>
-    //                   <Link to="/assets">
-    //                     <MdWork /> Asset List
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/add-asset">
-    //                     <MdDashboardCustomize /> Add Asset
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/requests">
-    //                     <FaUsers /> All Requests
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/employees">
-    //                     <FaUsers /> Employee List
-    //                   </Link>
-    //                 </li>
-    //                 <li>
-    //                   <Link to="/upgrade-package">
-    //                     <GiTakeMyMoney /> Upgrade Package
-    //                   </Link>
-    //                 </li>
-    //               </>
-    //             )}
-
-    //             <li>
-    //               <Link to="/profile">
-    //                 <FaUserTie /> Profile
-    //               </Link>
-    //             </li>
-
-    //             <li>
-    //               <button className="text-red-500">Logout</button>
-    //             </li>
-    //           </ul>
-    //         </div>
-    //       )}
-    //     </div>
-    //   </div>
-    // </div>
-    <div className="navbar bg-base-100 shadow-sm px-4 lg:px-8">
-      
-      {/* LEFT SIDE */}
+      {/* LEFT SIDE ------------------------------------------------------- */}
       <div className="navbar-start">
-        {/* MOBILE DROPDOWN */}
-        <div className="dropdown">
-          <label tabIndex={0} className="btn btn-ghost lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+        {/* MOBILE MENU DROPDOWN */}
+        <div className="dropdown lg:hidden">
+          <label tabIndex={0} className="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </label>
-          <ul
-            tabIndex={0}
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <NavLink
-                to="/"
-                className="flex items-center gap-2 font-medium hover:text-blue-600"
-              >
-                <FaHome /> Home
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/join-employee"
-                className="flex items-center gap-2 font-medium hover:text-blue-600"
-              >
-                <FaUsers /> Join as Employee
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/join-hr"
-                className="flex items-center gap-2 font-medium hover:text-blue-600"
-              >
-                <FaUserTie /> Join as HR Manager
-              </NavLink>
-            </li>
+
+          {/* MOBILE MENU LINKS */}
+          <ul tabIndex={0}
+            className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-white rounded-box w-52">
+            
+            <li><NavLink to="/"><FaHome /> Home</NavLink></li>
+            <li><NavLink to="/register-employee"><FaUsers /> Join Employee</NavLink></li>
+            <li><NavLink to="/register-hr"><FaUserTie /> Join HR</NavLink></li>
+
+            {/* Dashboard Only if Logged In */}
+            {user && (
+              <li>
+                <NavLink to="/dashboard">
+                  <MdDashboardCustomize /> Dashboard
+                </NavLink>
+              </li>
+            )}
           </ul>
         </div>
 
         {/* LOGO */}
-        <NavLink to="/" className=" normal-case text-xl">
-          <Logo />
-        </NavLink>
+        <Link to="/" className="text-xl font-bold"><Logo /></Link>
       </div>
 
-      {/* CENTER MENU FOR DESKTOP */}
+      {/* CENTER LINKS ---------------------------------------------------- */}
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-4">
-          <li>
-            <NavLink
-              to="/"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
-            >
-              <FaHome /> Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/join-employee"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
-            >
-              <FaUsers /> Join as Employee
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/join-hr"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all"
-            >
-              <FaUserTie /> Join as HR Manager
-            </NavLink>
-          </li>
+        <ul className="menu menu-horizontal gap-4">
+          <li><NavLink to="/" className="px-3 py-2 hover:bg-blue-50"><FaHome /> Home</NavLink></li>
+          <li><NavLink to="/register-employee" className="px-3 py-2 hover:bg-blue-50"><FaUsers /> Join Employee</NavLink></li>
+          <li><NavLink to="/register-hr" className="px-3 py-2 hover:bg-blue-50"><FaUserTie /> Join HR</NavLink></li>
+
+          {/* Dashboard link when logged in */}
+          {user && (
+            <li>
+              <NavLink to="/dashboard" className="px-3 py-2 hover:bg-blue-50">
+                <MdDashboardCustomize /> Dashboard
+              </NavLink>
+            </li>
+          )}
         </ul>
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT SIDE ----------------------------------------------------- */}
       <div className="navbar-end">
-        <NavLink
-          to="/login"
-          className="
-            btn 
-            flex items-center gap-2
-            bg-gradient-to-r from-blue-600 to-purple-600 
-            text-white font-semibold 
-            border-none
-            shadow-md
-            transition-all duration-300 
-            hover:scale-105 
-            hover:shadow-lg 
-            hover:from-blue-700 hover:to-purple-700
-            active:scale-95
-          "
-        >
-          <FaSignInAlt className="text-lg" />
-          Login
-        </NavLink>
+
+        {/* If USER NOT LOGGED IN → Show Login */}
+        {!user && (
+          <NavLink
+            to="/login"
+            className="
+              btn bg-gradient-to-r from-blue-600 to-purple-600 
+              text-white border-none shadow-md 
+              hover:scale-105 transition-all
+            "
+          >
+            <FaSignInAlt /> Login
+          </NavLink>
+        )}
+
+        {/* If USER LOGGED IN → Show Avatar Dropdown */}
+        {user && (
+          <div className="dropdown dropdown-end">
+            <label tabIndex={0} className="cursor-pointer">
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500">
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt="profile" />
+                ) : defaultAvatar}
+              </div>
+            </label>
+
+            <ul tabIndex={0}
+              className="dropdown-content menu p-3 shadow bg-white rounded-box w-56">
+
+              {/* EMPLOYEE MENU -------------------------------------- */}
+              {role === "employee" && (
+                <>
+                  <li><Link to="/my-assets"><MdWork /> My Assets</Link></li>
+                  <li><Link to="/my-team"><FaUsers /> My Team</Link></li>
+                  <li><Link to="/request-asset"><MdDashboardCustomize /> Request Asset</Link></li>
+                </>
+              )}
+
+              {/* HR MENU -------------------------------------------- */}
+              {role === "hr" && (
+                <>
+                  <li><Link to="/assets"><MdWork /> Asset List</Link></li>
+                  <li><Link to="/add-asset"><MdDashboardCustomize /> Add Asset</Link></li>
+                  <li><Link to="/requests"><FaUsers /> All Requests</Link></li>
+                  <li><Link to="/employees"><FaUsers /> Employee List</Link></li>
+                  <li><Link to="/upgrade-package"><GiTakeMyMoney /> Upgrade Package</Link></li>
+                </>
+              )}
+
+              {/* COMMON MENU ----------------------------------------- */}
+              <li><Link to="/profile"><FaUserTie /> Profile</Link></li>
+
+              {/* LOGOUT */}
+              <li>
+                <button
+                  onClick={logOut}
+                  className="
+                    btn mt-2 
+                    bg-gradient-to-r from-red-500 to-orange-500 
+                    text-white border-none shadow 
+                    hover:scale-105
+                  "
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

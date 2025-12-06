@@ -1,0 +1,210 @@
+import { useContext, useState } from "react";
+import { AuthContext } from "../../providers/AuthContext";
+import { FaGoogle, FaUserTie } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { saveOrUpdateUser } from "../../utils/index";
+
+const RegisterHR = () => {
+  const { createUser, signInWithGoogle, updateUserProfile } = useContext(AuthContext);
+  const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
+
+  const imgbbKey = import.meta.env.VITE_IMGBB_KEY;
+
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onSubmit = async (data) => {setError("");
+    setUploading(true);
+
+    const { name, email, companyName, dob, password } = data;
+    const imageFile = data.logo[0];
+    let logoURL = "";
+    try {
+    if (imageFile) {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  const uploadRes = await fetch(
+    `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_KEY}`,
+    {
+      method: "POST",
+      body: formData
+    }
+  );
+
+  const uploadData = await uploadRes.json();
+  logoURL = uploadData.data.url;
+}
+
+      await createUser(email, password);
+      await updateUserProfile(name, logoURL);
+      await saveOrUpdateUser({
+        name,
+        email,
+        companyName,
+        companyLogo: logoURL,
+        role: "hr",
+        packageLimit: 5,
+        currentEmployees: 0,
+        subscription: "basic",
+        dateOfBirth: dob
+      });
+
+      navigate("/");
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithGoogle();
+      const user = result.user;
+
+      await saveOrUpdateUser({
+        name: user.displayName,
+        email: user.email,
+        companyName: "Not Provided",
+        companyLogo: user.photoURL,
+        role: "hr",
+        packageLimit: 5,
+        currentEmployees: 0,
+        subscription: "basic",
+        dateOfBirth: "N/A"
+      });
+
+      navigate("/");
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  return (
+    <section className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center px-6">
+      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        {/* Left panel */}
+        <div className="flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl">
+          <h2 className="text-4xl font-bold text-white mb-4">Join as HR Manager</h2>
+          <p className="text-gray-200 mb-8">
+            Manage your company’s assets and employees with ease.
+          </p>
+          <img
+            src="https://cdni.iconscout.com/illustration/free/thumb/free-human-resources-illustration-download-in-svg-png-gif-file-formats--hr-hiring-management-recruitment-pack-people-illustrations-2183958.png"
+            className="w-72"
+            alt="HR"
+          />
+        </div>
+
+        {/* Right panel */}
+        <div>
+          <h3 className="text-3xl font-bold mb-6">HR Registration</h3>
+
+          {error && <p className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</p>}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+            {/* Name */}
+            <input
+              type="text"
+              placeholder="Full Name"
+              className="input input-bordered w-full"
+              {...register("name", {
+                required: "Name is required",
+                minLength: { value: 3, message: "Minimum 3 characters" }
+              })}
+            />
+            {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+
+            {/* Company Name */}
+            <input
+              type="text"
+              placeholder="Company Name"
+              className="input input-bordered w-full"
+              {...register("companyName", { required: "Company Name is required" })}
+            />
+            {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
+
+            {/* Logo */}
+            <input
+              type="file"
+              accept="image/*"
+              className="file-input file-input-bordered w-full"
+              {...register("logo")}
+              //, { required: "Company logo is required" }
+            />
+            {errors.logo && <p className="text-red-500 text-xs">{errors.logo.message}</p>}
+
+            {/* Email */}
+            <input
+              type="email"
+              placeholder="Work Email"
+              className="input input-bordered w-full"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Enter a valid email"
+                }
+              })}
+            />
+            {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+
+            {/* DOB */}
+            <input
+              type="date"
+              className="input input-bordered w-full"
+              {...register("dob", { required: "Date of Birth is required" })}
+            />
+            {errors.dob && <p className="text-red-500 text-xs">{errors.dob.message}</p>}
+
+            {/* Password */}
+            <input
+              type="password"
+              placeholder="Password (min 6 chars)"
+              className="input input-bordered w-full"
+              {...register("password", {
+                required: "Password is required",
+                minLength: { value: 6, message: "Minimum 6 characters" }
+              })}
+            />
+            {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="btn w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md hover:scale-105 transition duration-300"
+              disabled={uploading}
+            >
+              <FaUserTie className="mr-2" />
+              {uploading ? "Creating Account..." : "Register as HR"}
+            </button>
+          </form>
+
+          <div className="text-center my-4 text-gray-500">OR</div>
+
+          {/* Google Login */}
+          <button
+            onClick={handleGoogleLogin}
+            className="btn w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+          >
+            <FaGoogle className="mr-2 text-red-500" /> Continue with Google
+          </button>
+
+          <p className="text-center mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 font-semibold">Login</Link>
+          </p>
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+export default RegisterHR;
