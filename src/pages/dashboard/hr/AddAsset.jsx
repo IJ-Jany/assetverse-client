@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
+import { AuthContext } from "../../../providers/AuthContext";
 
-const AddAsset = ({ hrEmail, companyName }) => {
+const AddAsset = () => {
+  const { user } = useContext(AuthContext); // Logged-in HR info
+
   const [productName, setProductName] = useState("");
   const [productImage, setProductImage] = useState("");
   const [productType, setProductType] = useState("Returnable");
@@ -12,28 +15,44 @@ const AddAsset = ({ hrEmail, companyName }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user?.email) {
+      setMessage({
+        type: "error",
+        text: "HR email not found. Please login again.",
+      });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
     try {
       const res = await axios.post("http://localhost:5001/assets", {
         productName,
-        productImage,
+        productImage: productImage || "",
         productType,
-        productQuantity,
-        hrEmail,
-        companyName
+        productQuantity: Number(productQuantity),
+        hrEmail: user.email,          // AUTO HR EMAIL
+        companyName: "AssetVerse",    // AUTO company name
       });
 
       if (res.data.success) {
-        setMessage({ type: "success", text: "Asset added successfully!" });
+        setMessage({
+          type: "success",
+          text: "Asset added successfully!",
+        });
+
         setProductName("");
         setProductImage("");
         setProductQuantity(1);
         setProductType("Returnable");
       }
     } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.error || "Failed to add asset" });
+      setMessage({
+        type: "error",
+        text: err.response?.data?.error || "Failed to add asset",
+      });
     } finally {
       setLoading(false);
     }
@@ -48,7 +67,9 @@ const AddAsset = ({ hrEmail, companyName }) => {
       {message && (
         <p
           className={`mb-4 px-4 py-2 rounded ${
-            message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+            message.type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
           }`}
         >
           {message.text}
@@ -56,29 +77,31 @@ const AddAsset = ({ hrEmail, companyName }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        
+        {/* Asset Name */}
         <div>
           <label className="block font-medium mb-1">Asset Name *</label>
           <input
             type="text"
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
-            placeholder="Laptop, Chair..."
             className="input input-bordered w-full"
             required
           />
         </div>
 
+        {/* Image */}
         <div>
           <label className="block font-medium mb-1">Asset Image URL</label>
           <input
             type="text"
             value={productImage}
             onChange={(e) => setProductImage(e.target.value)}
-            placeholder="https://..."
             className="input input-bordered w-full"
           />
         </div>
 
+        {/* Type */}
         <div>
           <label className="block font-medium mb-1">Asset Type *</label>
           <select
@@ -91,6 +114,7 @@ const AddAsset = ({ hrEmail, companyName }) => {
           </select>
         </div>
 
+        {/* Quantity */}
         <div>
           <label className="block font-medium mb-1">Quantity *</label>
           <input
@@ -106,7 +130,7 @@ const AddAsset = ({ hrEmail, companyName }) => {
         <button
           type="submit"
           disabled={loading}
-          className="btn w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700"
+          className="btn w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white"
         >
           {loading ? "Adding..." : "Add Asset"}
         </button>

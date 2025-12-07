@@ -26,13 +26,13 @@ const benefits = [
 
 const About = () => {
   return (
-    <section className="py-28 bg-gray-50">
+    <section className="py-8 bg-gray-50">
       <div className="container mx-auto px-6 lg:px-20 text-center">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl md:text-5xl font-bold mb-6 text-gray-800"
+           className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 leading-tight"
         >
           Why Choose AssetVerse?
         </motion.h2>
@@ -40,12 +40,12 @@ const About = () => {
           initial={{ opacity: 0, y: -10 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-gray-600 max-w-2xl mx-auto mb-16 text-lg"
+          className="text-gray-600 max-w-2xl mx-auto mb-12 text-lg"
         >
           AssetVerse is designed to help companies manage their assets efficiently, increase accountability, and empower employees with a seamless asset management system.
         </motion.p>
 
-        {/* Benefits Grid */}
+      
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {benefits.map((benefit, index) => (
             <motion.div
@@ -55,7 +55,7 @@ const About = () => {
               transition={{ duration: 0.8, delay: index * 0.2 }}
               className="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="mb-4">{benefit.icon}</div>
+              <div className="mb-4 flex justify-center items-center">{benefit.icon}</div>
               <h3 className="text-xl font-semibold mb-2 text-gray-800">{benefit.title}</h3>
               <p className="text-gray-600 text-sm">{benefit.description}</p>
             </motion.div>
