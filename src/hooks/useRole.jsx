@@ -17,7 +17,7 @@ const useRole = (email) => {
 
         console.log("ROLE API RESPONSE:", res.data);
 
-        // FIX: MUST extract the string from response
+        
         setRole(res.data?.role || "");
       } catch (error) {
         console.error("ERROR FETCHING ROLE:", error);
@@ -30,7 +30,7 @@ const useRole = (email) => {
     fetchRole();
   }, [email]);
 
-  return role; // RETURN ONLY THE STRING
+  return role; 
 };
 
 export default useRole;

@@ -1,4 +1,3 @@
-// Navbar.jsx
 import { Link, NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../providers/AuthContext";
@@ -10,17 +9,15 @@ import useRole from "../hooks/useRole";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
-  const { role, loading } = useRole(user?.email); // role + loading
+  const { role, loading } = useRole(user?.email); 
 
   const defaultAvatar = <FaUserCircle className="text-3xl text-gray-500" />;
 
-  // Show nothing if loading
   if (user && loading) return null;
 
   return (
     <div className="navbar bg-white shadow-sm px-4 lg:px-8 sticky top-0 z-50">
 
-      {/* LEFT SIDE */}
       <div className="navbar-start">
         <div className="dropdown lg:hidden">
           <label tabIndex={0} className="btn btn-ghost">
@@ -39,17 +36,13 @@ const Navbar = () => {
             {user && (
               <li><NavLink to="/dashboard"><MdDashboardCustomize /> Dashboard</NavLink></li>
             )}
-
-            {/* {user && role === "employee" && ( */}
-              <li><NavLink to="/assets"><MdWork /> Assets</NavLink></li>
-            {/* // )} */}
+           <li><NavLink to="/assets"><MdWork /> Assets</NavLink></li>
           </ul>
         </div>
 
         <Link to="/" className="text-xl font-bold"><Logo /></Link>
       </div>
 
-      {/* CENTER LINKS */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal gap-4">
           <li><NavLink to="/" className="px-3 py-2 hover:bg-blue-50"><FaHome /> Home</NavLink></li>
@@ -60,13 +53,10 @@ const Navbar = () => {
             <li><NavLink to="/dashboard" className="px-3 py-2 hover:bg-blue-50"><MdDashboardCustomize /> Dashboard</NavLink></li>
           )}
 
-          {/* {user && role === "employee" && ( */}
             <li><NavLink to="/assets" className="px-3 py-2 hover:bg-blue-50"><MdWork /> Assets</NavLink></li>
-          {/* )} */}
         </ul>
       </div>
 
-      {/* RIGHT SIDE */}
       <div className="navbar-end">
         {!user && (
           <NavLink
@@ -86,7 +76,7 @@ const Navbar = () => {
             </label>
 
             <ul tabIndex={0} className="dropdown-content menu p-3 shadow bg-white rounded-box w-56">
-              {/* EMPLOYEE MENU */}
+        
               {role === "employee" && (
                 <>
                   <li><Link to="/my-assets"><MdWork /> My Assets</Link></li>
@@ -95,7 +85,7 @@ const Navbar = () => {
                 </>
               )}
 
-              {/* HR MENU */}
+           
               {role === "hr" && (
                 <>
                   <li><Link to="/assets"><MdWork /> Asset List</Link></li>

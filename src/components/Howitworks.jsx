@@ -8,16 +8,15 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="py-28 bg-white">
+    <section className="py-8 bg-white">
       <div className="container mx-auto px-6 lg:px-20">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-16">
+        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 leading-tight">
           How It Works
         </h2>
 
         <div className="relative flex flex-col md:flex-row justify-between items-center space-y-12 md:space-y-0 md:space-x-8">
           {steps.map((step, idx) => (
             <div key={idx} className="flex flex-col items-center text-center md:w-1/3 relative">
-              {/* Connector Line */}
               {idx < steps.length - 1 && (
                 <div className="hidden md:block absolute top-1/2 right-0 w-full h-1 bg-purple-300 z-0"></div>
               )}

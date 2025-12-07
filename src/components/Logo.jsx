@@ -4,7 +4,6 @@ import logo from "../assets/logo.png";
 const Logo = () => {
   return (
     <Link to="/" className="flex items-center gap-2">
-      {/* Logo Image */}
       <img
         src={logo}
         alt="AssetVerse Logo"

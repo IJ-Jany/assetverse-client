@@ -13,9 +13,9 @@ const Faq = () => {
   const toggle = (idx) => setOpenIndex(openIndex === idx ? null : idx);
 
   return (
-    <section className="py-28 bg-gradient-to-r from-blue-50 to-purple-50">
+    <section className="py-8 bg-gradient-to-r from-blue-50 to-purple-50">
       <div className="container mx-auto px-6 lg:px-20">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-16">
+        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 leading-tight pb-6">
           Frequently Asked Questions
         </h2>
 

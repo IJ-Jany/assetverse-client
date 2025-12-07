@@ -1,50 +1,46 @@
 import { FaEnvelope, FaPhone, FaPaperPlane } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    // You can integrate this with your backend API or Firebase
-    alert("Message sent successfully!");
+    toast.success("Message sent successfully!");
   };
 
   return (
-    <section className="py-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-      <div className="container mx-auto px-3 lg:px-8">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
-          Contact Us
-        </h2>
-        <p className="text-center text-gray-200 mb-12">
+    <section className="py-8 bg-gradient-to-br from-gray-100 via-white to-gray-200">
+
+      <div className="container mx-auto px-4 lg:px-8">
+        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 leading-tight">Contact Us</h2>
+        <p className="text-center text-gray-600 mb-10">
           Have questions or need help? Send us a message, call, or email us directly.
         </p>
 
-        <div className="flex flex-col lg:flex-row gap-12">
-          {/* Left: Contact Info */}
-          <div className="lg:w-1/3 space-y-8">
-            <div className="flex items-center gap-4">
-              <FaEnvelope className="text-3xl text-white" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="space-y-6">
+            <div className="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
+              <FaEnvelope className="text-primary text-2xl" />
               <div>
-                <p className="font-semibold">Email Us</p>
-                <a href="mailto:contact@assetverse.com" className="text-gray-200 hover:text-white">
+                <p className="font-semibold">Email</p>
+                <a href="mailto:contact@assetverse.com" className="text-gray-600 hover:text-primary">
                   contact@assetverse.com
                 </a>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <FaPhone className="text-3xl text-white" />
+            <div className="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
+              <FaPhone className="text-primary text-2xl" />
               <div>
-                <p className="font-semibold">Call Us</p>
-                <a href="tel:+1234567890" className="text-gray-200 hover:text-white">
+                <p className="font-semibold">Call</p>
+                <a href="tel:+1234567890" className="text-gray-600 hover:text-primary">
                   +123 456 7890
                 </a>
               </div>
             </div>
           </div>
-
-          {/* Right: Contact Form */}
-          <div className="lg:w-2/3 bg-white text-gray-800 p-8 rounded-xl shadow-lg">
+          <div className="lg:col-span-2 bg-white shadow-lg rounded-xl p-8">
             <h3 className="text-2xl font-bold mb-6">Send us a message</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
                   placeholder="Your Name"
@@ -70,12 +66,13 @@ const Contact = () => {
                 rows="6"
                 required
               ></textarea>
-              <button
-                type="submit"
-                className="btn bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-300"
-              >
-                <FaPaperPlane /> Send Message
-              </button>
+             <button
+  type="submit"
+  className="btn btn-primary w-full flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-300 bg-gradient-to-r from-blue-600 to-purple-600"
+>
+  <FaPaperPlane /> Send Message
+</button>
+
             </form>
           </div>
         </div>

@@ -21,15 +21,11 @@ const Sidebar = () => {
 
   return (
     <div className="flex flex-col h-screen justify-between w-64 bg-white shadow-lg p-6">
-      {/* TOP: Dashboard Title */}
       <div>
         <h2 className="text-2xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
           Dashboard
         </h2>
-
-        {/* MENU */}
         <ul className="space-y-2">
-          {/* Employee Links */}
           {role === "employee" && (
             <>
               <li>
@@ -52,8 +48,6 @@ const Sidebar = () => {
               </li>
             </>
           )}
-
-          {/* HR Links */}
           {role === "hr" && (
             <>
               <li>
@@ -92,7 +86,7 @@ const Sidebar = () => {
         </ul>
       </div>
 
-      {/* BOTTOM: Profile + Logout */}
+ 
       <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col gap-3">
         <NavLink
           to="/dashboard/profile"

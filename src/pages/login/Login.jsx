@@ -36,7 +36,7 @@ const Login = () => {
     <section className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center px-6">
       <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
 
-        {/* Left Illustration */}
+        
         <div className="flex flex-col justify-center items-center text-center p-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
           <h2 className="text-4xl font-bold text-white mb-4">
             Welcome Back!
@@ -44,14 +44,10 @@ const Login = () => {
           <p className="text-gray-200 text-lg mb-8">
             Login to access your dashboard and manage your assets effortlessly.
           </p>
-          <img
-            src="https://cdni.iconscout.com/illustration/premium/thumb/login-authentication-illustration-download-in-svg-png-gif-file-formats--user-secure-student-education-pack-education-illustrations-6700750.png"
-            alt="login"
-            className="w-72 drop-shadow-xl"
-          />
+         
         </div>
 
-        {/* Login Form */}
+       
         <div className="p-6 flex flex-col justify-center">
           <h3 className="text-3xl font-bold text-gray-800 mb-6">
             Login to Your Account
@@ -80,7 +76,7 @@ const Login = () => {
               required
             />
 
-            {/* Login Button */}
+           
             <button
               type="submit"
               className="
@@ -98,24 +94,17 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Divider */}
+        
           <div className="text-center my-4">
             <span className="text-gray-500">OR</span>
           </div>
 
-          {/* Google Login Button */}
-          <button
-            onClick={handleGoogleLogin}
-            className="
-              btn w-full bg-white text-gray-700 border border-gray-300 shadow-sm
-              hover:bg-gray-100 hover:shadow-md transition duration-300
-            "
-          >
-            <FaGoogle className="mr-2 text-red-500 text-lg" />
-            Continue with Google
-          </button>
+                  <button onClick={handleGoogleLogin} className="btn w-full bg-white text-black border-[#e5e5e5]">
+  <svg aria-label="Google logo" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g><path d="m0 0H512V512H0" fill="#fff"></path><path fill="#34a853" d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"></path><path fill="#4285f4" d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"></path><path fill="#fbbc02" d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"></path><path fill="#ea4335" d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"></path></g></svg>
+  Login with Google
+</button>
 
-          {/* Register Link */}
+      
           <p className="text-center mt-6 text-gray-700">
             Don’t have an account?{" "}
             <Link to="/register" className="text-blue-600 font-semibold hover:underline">

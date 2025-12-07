@@ -26,9 +26,9 @@ const stats = [
 
 const Testimonials = () => {
   return (
-    <section className="py-28 bg-gray-50">
+    <section className="py-8 bg-gray-50">
       <div className="container mx-auto px-6 lg:px-20 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">Trusted by Leading Companies</h2>
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Trusted by Leading Companies</h2>
         <p className="text-gray-600 max-w-2xl mx-auto mb-16 text-lg">
           Companies across industries rely on AssetVerse to efficiently manage their assets and employees.
         </p>

@@ -35,14 +35,12 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="py-28 bg-white">
+    <section className="py-8 bg-white">
       <div className="container mx-auto px-6 lg:px-20 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">Features That Empower You</h2>
-        <p className="text-gray-600 max-w-2xl mx-auto mb-16 text-lg">
+        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 leading-tight pb-2">Features That Empower You</h2>
+        <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-lg">
           AssetVerse provides powerful tools to manage your company assets and employees efficiently.
         </p>
-
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {features.map((feature, idx) => (
             <div
