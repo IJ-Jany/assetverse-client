@@ -1,26 +1,27 @@
 import { useState, useContext } from "react";
 import axios from "axios";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaUpload } from "react-icons/fa";
 import { AuthContext } from "../../../providers/AuthContext";
+import { toast } from "react-toastify";
 
 const AddAsset = () => {
-  const { user } = useContext(AuthContext); // Logged-in HR info
+  const { user } = useContext(AuthContext);
 
   const [productName, setProductName] = useState("");
-  const [productImage, setProductImage] = useState("");
+  const [productImage, setProductImage] = useState(null);
   const [productType, setProductType] = useState("Returnable");
   const [productQuantity, setProductQuantity] = useState(1);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+
+  const imgbbKey = import.meta.env.VITE_IMGBB_KEY;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!user?.email) {
-      setMessage({
-        type: "error",
-        text: "HR email not found. Please login again.",
-      });
+      setMessage({ type: "error", text: "HR email not found. Please login again." });
       return;
     }
 
@@ -28,31 +29,48 @@ const AddAsset = () => {
     setMessage(null);
 
     try {
+      let uploadedImageURL = "";
+      if (productImage) {
+        const formData = new FormData();
+        formData.append("image", productImage);
+
+        const uploadRes = await fetch(
+          `https://api.imgbb.com/1/upload?key=${imgbbKey}`,
+          { method: "POST", body: formData }
+        );
+
+        const result = await uploadRes.json();
+        uploadedImageURL = result.data.url;
+      }
+
+ 
       const res = await axios.post("http://localhost:5001/assets", {
         productName,
-        productImage: productImage || "",
+        productImage: uploadedImageURL,
         productType,
         productQuantity: Number(productQuantity),
-        hrEmail: user.email,          // AUTO HR EMAIL
-        companyName: "AssetVerse",    // AUTO company name
+        hrEmail: user.email,
+        companyName: "AssetVerse",
       });
 
       if (res.data.success) {
-        setMessage({
-          type: "success",
-          text: "Asset added successfully!",
-        });
+        toast.success("Asset added successfully!"); 
 
+        setMessage({ type: "success", text: "Asset added successfully!" });
+
+     
         setProductName("");
-        setProductImage("");
+        setProductImage(null);
         setProductQuantity(1);
         setProductType("Returnable");
       }
+
     } catch (err) {
       setMessage({
         type: "error",
         text: err.response?.data?.error || "Failed to add asset",
       });
+      toast.error("Failed to add asset");
     } finally {
       setLoading(false);
     }
@@ -77,8 +95,8 @@ const AddAsset = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        
-        {/* Asset Name */}
+
+    
         <div>
           <label className="block font-medium mb-1">Asset Name *</label>
           <input
@@ -90,18 +108,22 @@ const AddAsset = () => {
           />
         </div>
 
-        {/* Image */}
         <div>
-          <label className="block font-medium mb-1">Asset Image URL</label>
+          <label className="block font-medium mb-1">Asset Image</label>
           <input
-            type="text"
-            value={productImage}
-            onChange={(e) => setProductImage(e.target.value)}
-            className="input input-bordered w-full"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setProductImage(e.target.files[0])}
+            className="file-input file-input-bordered w-full"
           />
+          {productImage && (
+            <p className="text-sm mt-1 text-gray-500">
+              Selected: {productImage.name}
+            </p>
+          )}
         </div>
 
-        {/* Type */}
+  
         <div>
           <label className="block font-medium mb-1">Asset Type *</label>
           <select
@@ -114,7 +136,7 @@ const AddAsset = () => {
           </select>
         </div>
 
-        {/* Quantity */}
+    
         <div>
           <label className="block font-medium mb-1">Quantity *</label>
           <input
@@ -130,9 +152,15 @@ const AddAsset = () => {
         <button
           type="submit"
           disabled={loading}
-          className="btn w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+          className="btn w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center gap-2"
         >
-          {loading ? "Adding..." : "Add Asset"}
+          {loading ? (
+            "Uploading & Adding..."
+          ) : (
+            <>
+              <FaUpload /> Add Asset
+            </>
+          )}
         </button>
       </form>
     </div>
