@@ -20,7 +20,7 @@ const EmployeeList = () => {
     if (!window.confirm("Remove this employee from your team?")) return;
 
     try {
-      // backend logic: remove assignedHR from employee
+    
       await axios.put(`http://localhost:5001/hr/remove-employee/${id}`, { hrEmail: user.email });
 
       setEmployees(prev => prev.filter(emp => emp._id !== id));

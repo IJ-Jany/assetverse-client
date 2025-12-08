@@ -28,15 +28,24 @@ const Assets = () => {
 
   // DELETE ASSET
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this asset?")) return;
+    // Custom confirm
+    if (!window.confirm("Do you really want to delete this asset?")) {
+      toast.info("Delete cancelled");
+      return;
+    }
 
     try {
       await axios.delete(`http://localhost:5001/assets/${id}`);
+
       setAssets((prev) => prev.filter((asset) => asset._id !== id));
-      toast.success("Asset deleted!");
+
+      toast.success("Asset deleted successfully!", {
+        autoClose: 1200,
+      });
+
     } catch (err) {
+      toast.error("Delete failed!");
       console.error(err);
-      toast.error("Failed to delete!");
     }
   };
 
@@ -56,6 +65,7 @@ const Assets = () => {
     try {
       let updatedImageURL = selectedAsset.productImage;
 
+      // If new image uploaded
       if (updatedImage) {
         const formData = new FormData();
         formData.append("image", updatedImage);
@@ -81,9 +91,9 @@ const Assets = () => {
         updatedData
       );
 
-      toast.success("Asset updated!");
+      toast.success("Asset updated successfully!");
 
-      // Update UI
+      // Update UI without refresh
       setAssets((prev) =>
         prev.map((a) =>
           a._id === selectedAsset._id ? { ...a, ...updatedData } : a
@@ -93,8 +103,8 @@ const Assets = () => {
       setEditModalOpen(false);
 
     } catch (err) {
+      toast.error("Update failed!");
       console.error(err);
-      toast.error("Failed to update asset!");
     }
   };
 
@@ -104,23 +114,25 @@ const Assets = () => {
   );
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-700">My Company Assets</h1>
+    <div className="p-4 md:p-6">
+      <h1 className="text-3xl font-bold mb-6 text-gray-700 text-center md:text-left">
+        My Company Assets
+      </h1>
 
       {/* Search */}
       <input
         type="text"
         placeholder="Search asset..."
-        className="border p-2 rounded-lg mb-4 w-full md:w-1/3"
+        className="border p-3 rounded-lg mb-4 w-full md:w-1/3 shadow-sm"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
       {/* Asset Table */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-lg p-4">
-        <table className="w-full table-auto">
+        <table className="w-full min-w-[650px]">
           <thead>
-            <tr className="border-b text-left">
+            <tr className="border-b text-left bg-gray-50">
               <th className="p-3">Image</th>
               <th className="p-3">Name</th>
               <th className="p-3">Type</th>
@@ -132,11 +144,11 @@ const Assets = () => {
 
           <tbody>
             {filteredAssets.map((asset) => (
-              <tr key={asset._id} className="border-b hover:bg-gray-50">
+              <tr key={asset._id} className="border-b hover:bg-gray-50 transition">
                 <td className="p-3">
                   <img
                     src={asset.productImage || "https://via.placeholder.com/80"}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-14 h-14 md:w-16 md:h-16 object-cover rounded-md shadow-sm"
                   />
                 </td>
 
@@ -152,10 +164,10 @@ const Assets = () => {
                   {new Date(asset.dateAdded).toLocaleDateString()}
                 </td>
 
-                <td className="p-3 flex gap-3">
+                <td className="p-3 flex gap-2">
                   {/* Edit */}
                   <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600"
+                    className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 shadow-sm"
                     onClick={() => handleEdit(asset)}
                   >
                     <FaEdit />
@@ -163,7 +175,7 @@ const Assets = () => {
 
                   {/* Delete */}
                   <button
-                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                    className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 shadow-sm"
                     onClick={() => handleDelete(asset._id)}
                   >
                     <FaTrash />
@@ -179,12 +191,12 @@ const Assets = () => {
 
       {/* EDIT MODAL */}
       {editModalOpen && (
-        <div className="fixed inset-0 bg-gray-400 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
 
-          <div className="bg-white p-6 rounded-xl w-96 shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Edit Asset</h2>
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl animate-fadeIn">
+            <h2 className="text-xl font-bold mb-4 text-center">Edit Asset</h2>
 
-            <form onSubmit={handleEditSubmit} className="space-y-3">
+            <form onSubmit={handleEditSubmit} className="space-y-4">
 
               <input
                 type="text"
@@ -228,7 +240,7 @@ const Assets = () => {
               <div className="flex justify-end gap-3 mt-4">
                 <button
                   type="button"
-                  className="btn bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md hover:scale-105 transition duration-300"
+                  className="btn bg-gray-300 text-gray-700 hover:bg-gray-400"
                   onClick={() => setEditModalOpen(false)}
                 >
                   Cancel
@@ -236,7 +248,7 @@ const Assets = () => {
 
                 <button
                   type="submit"
-                  className="btn bg-blue-600 text-white"
+                  className="btn bg-blue-600 text-white hover:bg-blue-700"
                 >
                   <FaUpload /> Update
                 </button>
