@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FaUser, FaEnvelope, FaBirthdayCake } from "react-icons/fa";
 import axios from "axios";
 import { AuthContext } from "../../providers/AuthContext";
 
@@ -7,13 +6,17 @@ const Profile = () => {
   const { user } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [name, setName] = useState("");
   const [dob, setDob] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
   const [affiliations, setAffiliations] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+
+  const IMGBB_KEY = import.meta.env.VITE_IMGBB_KEY;
 
   useEffect(() => {
     if (user?.email) {
@@ -23,10 +26,15 @@ const Profile = () => {
         .then((res) => {
           const data = res.data;
           setProfile(data);
+
           setName(data.name || "");
           setDob(data.dateOfBirth || "");
-          setProfileImage(null); // no new upload yet
-          setImagePreview(data.profileImage || "https://i.ibb.co/ZT0J0Xh/user.png");
+
+          // Show existing image or default one
+          setImagePreview(
+            data.profileImage || "https://i.ibb.co/ZT0J0Xh/user.png"
+          );
+
           setLoading(false);
         })
         .catch((err) => {
@@ -42,6 +50,7 @@ const Profile = () => {
     }
   }, [user]);
 
+  // Preview image
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -50,19 +59,38 @@ const Profile = () => {
     }
   };
 
+  // Upload to imgbb
+  const uploadToImgBB = async (file) => {
+    const form = new FormData();
+    form.append("image", file);
+
+    const uploadURL = `https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`;
+    const response = await axios.post(uploadURL, form);
+    return response.data.data.url;
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setMessage(null);
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("dateOfBirth", dob);
-      if (profileImage) formData.append("profileImage", profileImage);
+      let uploadedImageUrl = profile.profileImage;
 
-      const res = await axios.put(`http://localhost:5001/users/${user.email}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // If user selected new image -> upload to imgbb
+      if (profileImage) {
+        uploadedImageUrl = await uploadToImgBB(profileImage);
+      }
+
+      const updatedData = {
+        name,
+        dateOfBirth: dob,
+        profileImage: uploadedImageUrl,
+      };
+
+      const res = await axios.put(
+        `http://localhost:5001/users/${user.email}`,
+        updatedData
+      );
 
       setProfile(res.data);
       setMessage({ type: "success", text: "Profile updated successfully!" });
@@ -74,24 +102,33 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <p className="p-6 text-center text-gray-500">Loading profile...</p>;
-  if (!profile) return <p className="p-6 text-center text-red-500">No profile found</p>;
+  if (loading)
+    return (
+      <p className="p-6 text-center text-gray-500">Loading profile...</p>
+    );
+
+  if (!profile)
+    return (
+      <p className="p-6 text-center text-red-500">No profile found</p>
+    );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 py-10">
       <div className="card w-full max-w-lg bg-base-100 shadow-xl p-6">
-
+        {/* Message */}
         {message && (
           <p
             className={`mb-4 px-4 py-2 rounded ${
-              message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              message.type === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
             }`}
           >
             {message.text}
           </p>
         )}
 
-        {/* Profile Photo */}
+        {/* Profile Image */}
         <div className="flex justify-center mb-4">
           <img
             src={imagePreview}
@@ -99,7 +136,13 @@ const Profile = () => {
             className="w-32 h-32 rounded-full border-4 border-primary object-cover"
           />
         </div>
-        <input type="file" onChange={handleImageChange} className="mb-4 w-full" />
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="mb-4 w-full"
+        />
 
         {/* Name */}
         <div className="mb-4">
@@ -112,7 +155,7 @@ const Profile = () => {
           />
         </div>
 
-        {/* Email (read-only) */}
+        {/* Email (readonly) */}
         <div className="mb-4">
           <label className="block font-medium mb-1">Email</label>
           <input
@@ -135,9 +178,11 @@ const Profile = () => {
         </div>
 
         {/* Role */}
-        <p className="mb-4 badge badge-primary badge-outline">{profile.role.toUpperCase()}</p>
+        <p className="mb-4 badge badge-primary badge-outline">
+          {profile.role.toUpperCase()}
+        </p>
 
-        {/* Company Affiliations */}
+        {/* Affiliations */}
         <div className="mb-4">
           <h3 className="font-medium mb-2">Company Affiliations</h3>
           {affiliations.length > 0 ? (
