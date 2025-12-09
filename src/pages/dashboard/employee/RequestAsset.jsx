@@ -10,6 +10,11 @@ const RequestAsset = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
+    // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10); // configurable page size
+
   // Fetch assets
   useEffect(() => {
     axios.get("http://localhost:5001/assets")

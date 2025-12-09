@@ -28,49 +28,55 @@ const Requests = () => {
   }, [user]);
 
   // Approve request with 5-employee limit
-  const handleApprove = async (request) => {
-    if (!confirm("Approve this request?")) return;
+const handleApprove = async (request) => {
+  if (!confirm("Approve this request?")) return;
 
-    try {
-      // 1️⃣ Check current team size
-      const teamRes = await axios.get(
-        `http://localhost:5001/hr/team-members/${user.email}`
-      );
+  try {
+    // 1️⃣ Fetch dynamic team size + package limit from server
+    const teamRes = await axios.get(
+      `http://localhost:5001/hr/team-members/${user.email}`
+    );
 
-      if (!teamRes.data.success) {
-        toast.error("Failed to fetch team members.");
-        return;
-      }
-
-      const teamSize = teamRes.data.employees.length;
-
-      if (teamSize >= 5) {
-        toast.error(
-          "Cannot accept request. You have reached the limit of 5 employees. Upgrade your package."
-        );
-        return;
-      }
-
-      // 2️⃣ Approve request
-      const res = await axios.put(
-        `http://localhost:5001/requests/approve/${request._id}`
-      );
-
-      if (res.data.success) {
-        setRequests((prev) =>
-          prev.map((r) =>
-            r._id === request._id ? { ...r, requestStatus: "approved" } : r
-          )
-        );
-        toast.success("Request approved successfully!");
-      } else {
-        toast.error("Failed to approve request.");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error approving request.");
+    if (!teamRes.data.success) {
+      toast.error("Failed to fetch team members.");
+      return;
     }
-  };
+
+    const teamSize = teamRes.data.currentCount;      // Current number of employees under this HR
+    const packageLimit = teamRes.data.packageLimit;  // Max employees allowed by package
+
+    console.log("Current Team Size:", teamSize, "Package Limit:", packageLimit);
+
+    // 2️⃣ Check if approving exceeds package limit
+    if (teamSize >= packageLimit) {
+      toast.error(
+        `Cannot accept request. You have reached your package limit of ${packageLimit} employees. Upgrade your package.`
+      );
+      return;
+    }
+
+    // 3️⃣ Approve request via backend
+    const res = await axios.put(
+      `http://localhost:5001/requests/approve/${request._id}`
+    );
+
+    if (res.data.success) {
+      // 4️⃣ Update local requests state
+      setRequests((prev) =>
+        prev.map((r) =>
+          r._id === request._id ? { ...r, requestStatus: "approved" } : r
+        )
+      );
+      toast.success("Request approved successfully!");
+    } else {
+      toast.error("Failed to approve request.");
+    }
+  } catch (err) {
+    console.error("Approve Error:", err);
+    toast.error("Error approving request.");
+  }
+};
+
 
   // Reject request
   const handleReject = async (id) => {

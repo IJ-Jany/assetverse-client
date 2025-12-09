@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const HRPackageUpgrade = ({ hrEmail }) => {
+const UpgradePackage = ({ hrEmail }) => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -25,6 +25,7 @@ const HRPackageUpgrade = ({ hrEmail }) => {
     setMessage(null);
   };
 
+  // Confirm & Redirect to Stripe Checkout
   const handleConfirm = async () => {
     if (!selectedPackage) {
       setMessage({ type: "error", text: "Please select a package." });
@@ -32,22 +33,35 @@ const HRPackageUpgrade = ({ hrEmail }) => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5001/upgradePackage", {
-        hrEmail,
-        packageId: selectedPackage,
-      });
+      const selectedPkg = packages.find((p) => p._id === selectedPackage);
 
-      setMessage({ type: "success", text: "Package upgraded successfully!" });
+      const paymentInfo = {
+        hrEmail,
+        packageId: selectedPkg._id,
+        name: selectedPkg.name,
+        price: selectedPkg.price,
+      };
+
+      const result = await axios.post(
+        "http://localhost:5001/create-checkout-session",
+        paymentInfo
+      );
+
+     if (result.data?.url) {
+  window.location.href = result.data.url;
+}
+ else {
+        setMessage({ type: "error", text: "Payment redirect failed." });
+      }
     } catch (err) {
       console.error(err);
-      setMessage({ type: "error", text: "Failed to upgrade package." });
+      setMessage({ type: "error", text: "Payment session failed." });
     }
   };
 
-  if (loading)
-    return (
-      <p className="text-center p-6 text-gray-500">Loading packages...</p>
-    );
+  if (loading) {
+    return <p className="text-center p-6 text-gray-500">Loading packages...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-base-200 flex flex-col items-center py-10">
@@ -103,14 +117,11 @@ const HRPackageUpgrade = ({ hrEmail }) => {
         ))}
       </div>
 
-      <button
-        className="btn btn-primary mt-8 px-12"
-        onClick={handleConfirm}
-      >
+      <button className="btn btn-primary mt-8 px-12" onClick={handleConfirm}>
         Confirm Upgrade
       </button>
     </div>
   );
 };
 
-export default HRPackageUpgrade;
+export default UpgradePackage;

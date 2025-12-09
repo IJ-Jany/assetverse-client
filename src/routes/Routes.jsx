@@ -17,6 +17,7 @@ import UpgradePackage from "../pages/dashboard/hr/UpgradePackage";
 import Profile from "../pages/dashboard/Profile";
 import AssetsList from "../components/AssetsList";
 import HRRequests from "../pages/dashboard/hr/Requests";
+import PaySuccess from "../pages/payment/PaySuccess";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,9 @@ export const router = createBrowserRouter([
   { 
     path: "/register-hr", 
     element: <RegisterHR /> },
+     { 
+    path: "/pay-success", 
+    element: <PaySuccess /> },
   {
     path: "/dashboard",
     element: <DashboardLayout />,

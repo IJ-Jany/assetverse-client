@@ -15,6 +15,7 @@ const Profile = () => {
   const [affiliations, setAffiliations] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const [packageInfo, setPackageInfo] = useState(null);
 
   const IMGBB_KEY = import.meta.env.VITE_IMGBB_KEY;
 
@@ -24,7 +25,7 @@ const Profile = () => {
       axios
         .get(`http://localhost:5001/users/${user.email}`)
         .then((res) => {
-          const data = res.data;
+          const data = res.data.user;
           setProfile(data);
 
           setName(data.name || "");
@@ -34,13 +35,19 @@ const Profile = () => {
           setImagePreview(
             data.profileImage || "https://i.ibb.co/ZT0J0Xh/user.png"
           );
+              if (data.packageId) {
+          axios.get(`http://localhost:5001/packages/${data.packageId}`)
+            .then(res => setPackageInfo(res.data))
+            .catch(err => console.error(err));
+        }
+
 
           setLoading(false);
         })
         .catch((err) => {
           console.error(err.message);
           setLoading(false);
-        });
+        },[user]);
 
       // Fetch affiliations
       axios
@@ -179,7 +186,7 @@ const Profile = () => {
 
         {/* Role */}
         <p className="mb-4 badge badge-primary badge-outline">
-          {profile.role.toUpperCase()}
+          {profile.role}
         </p>
 
         {/* Affiliations */}
@@ -197,6 +204,19 @@ const Profile = () => {
             <p className="text-gray-500">No company affiliations</p>
           )}
         </div>
+{/* Current Package */}
+<div className="mb-4">
+  <h3 className="font-medium mb-1">Current Package</h3>
+  {packageInfo ? (
+    <p>
+      {packageInfo.name} - Employee Limit: {packageInfo.limit}
+    </p>
+  ) : (
+    <p className="text-gray-500">No package purchased</p>
+  )}
+</div>
+
+
 
         {/* Save Button */}
         <button
