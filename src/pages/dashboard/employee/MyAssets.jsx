@@ -9,7 +9,6 @@ const MyAssets = () => {
   const [filterType, setFilterType] = useState("All");
   const [loading, setLoading] = useState(false);
 
-  // Fetch assets assigned to the user
   const fetchAssets = async () => {
     if (!user?.email) return;
     setLoading(true);
@@ -29,8 +28,6 @@ const MyAssets = () => {
   useEffect(() => {
     fetchAssets();
   }, [user]);
-
-  // Filter assets based on search and type
   const filteredAssets = assets.filter((asset) => {
     const matchesSearch = asset.assetName
       .toLowerCase()
@@ -39,8 +36,6 @@ const MyAssets = () => {
       filterType === "All" ? true : asset.assetType === filterType;
     return matchesSearch && matchesType;
   });
-
-  // Print assets table
   const handlePrint = () => {
     const printContent = document.getElementById("printableAssets");
     const WinPrint = window.open("", "", "width=900,height=650");
@@ -65,7 +60,7 @@ const MyAssets = () => {
     WinPrint.print();
   };
 
-  // Handle asset return
+ 
   const handleReturn = async (assetId) => {
     if (!window.confirm("Are you sure you want to return this asset?")) return;
     try {
@@ -74,8 +69,6 @@ const MyAssets = () => {
       );
       if (res.data.success) {
         alert("Asset returned successfully!");
-
-        // Update UI immediately without waiting for fetch
         setAssets((prevAssets) =>
           prevAssets.map((a) =>
             a.assetId === assetId ? { ...a, status: "returned" } : a
@@ -92,7 +85,6 @@ const MyAssets = () => {
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">My Assets</h2>
 
-      {/* Search & Filter */}
       <div className="flex gap-4 mb-4">
         <input
           type="text"

@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../../providers/AuthContext";
-import { FaBox, FaCalendarAlt } from "react-icons/fa";
 
 const RequestAsset = () => {
   const { user } = useContext(AuthContext);
@@ -10,27 +9,35 @@ const RequestAsset = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
-    // Pagination state
+  // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(10); // configurable page size
+  const limit = 10; // items per page
 
-  // Fetch assets
+  // Fetch assets for current page
   useEffect(() => {
-    axios.get("http://localhost:5001/assets")
-      .then(res => setAssets(res.data))
-      .catch(err => console.error(err))
+    if (!user?.email) return;
+    setLoading(true);
+    axios
+      .get(`http://localhost:5001/assets?page=${page}&limit=${limit}`)
+      .then((res) => {
+        setAssets(res.data.assets || []);
+        setTotalPages(res.data.totalPages || 1);
+      })
+      .catch((err) => console.error("Fetch assets error:", err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user, page]);
 
-  // Fetch employee requests
+  // Fetch user requests
   useEffect(() => {
-    if (!user) return;
-    axios.get(`http://localhost:5001/my-requests?email=${user.email}`)
-      .then(res => setRequests(res.data))
-      .catch(err => console.error(err));
+    if (!user?.email) return;
+    axios
+      .get(`http://localhost:5001/my-requests?email=${user.email}`)
+      .then((res) => setRequests(res.data || []))
+      .catch((err) => console.error("Fetch requests error:", err));
   }, [user]);
 
+  // Request an asset
   const handleRequest = async (asset) => {
     try {
       const res = await axios.post("http://localhost:5001/requests", {
@@ -46,15 +53,36 @@ const RequestAsset = () => {
 
       if (res.data.success) {
         setMessage({ type: "success", text: "Request sent successfully!" });
-        // Update local state
-        setRequests(prev => [...prev, {
-          assetName: asset.productName,
-          requestStatus: "pending",
-          requestDate: new Date()
-        }]);
+        setRequests((prev) => [
+          ...prev,
+          {
+            assetName: asset.productName,
+            requestStatus: "pending",
+            requestDate: new Date(),
+          },
+        ]);
       }
     } catch (err) {
       setMessage({ type: "error", text: "Failed to request asset" });
+      console.error(err);
+    }
+  };
+
+  // Return a returnable asset
+  const handleReturn = async (asset) => {
+    if (!window.confirm("Are you sure you want to return this asset?")) return;
+    try {
+      const res = await axios.put(`http://localhost:5001/assets/return/${asset._id}`);
+      if (res.data.success) {
+        setMessage({ type: "success", text: "Asset returned successfully!" });
+        setAssets((prev) =>
+          prev.map((a) =>
+            a._id === asset._id ? { ...a, availableQuantity: a.availableQuantity + 1 } : a
+          )
+        );
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Failed to return asset" });
       console.error(err);
     }
   };
@@ -66,56 +94,116 @@ const RequestAsset = () => {
       <h1 className="text-3xl font-bold mb-6 text-gray-700">Request Asset</h1>
 
       {message && (
-        <p className={`p-3 rounded mb-4 ${
-          message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-        }`}>{message.text}</p>
+        <p
+          className={`p-3 rounded mb-4 ${
+            message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+          }`}
+        >
+          {message.text}
+        </p>
       )}
 
-      {/* Asset List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-        {assets.map(asset => {
-          const alreadyRequested = requests.some(r => r.assetName === asset.productName);
+      {/* Asset Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
+        {assets.map((asset) => {
+          const alreadyRequested = requests.some(
+            (r) => r.assetName === asset.productName
+          );
           return (
-            <div key={asset._id} className="bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
-              <img src={asset.productImage || "https://via.placeholder.com/150"} alt={asset.productName} className="h-40 w-full object-cover rounded-md"/>
+            <div
+              key={asset._id}
+              className="bg-white rounded-xl shadow-lg p-4 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
+            >
+              <img
+                src={asset.productImage || "https://via.placeholder.com/150"}
+                alt={asset.productName}
+                className="h-40 w-full object-cover rounded-md"
+              />
               <h3 className="font-semibold text-lg mt-2">{asset.productName}</h3>
               <p className="text-gray-500 text-sm">Type: {asset.productType}</p>
               <p className="text-gray-500 text-sm">Available: {asset.availableQuantity}</p>
-              <button
-                disabled={asset.availableQuantity < 1 || alreadyRequested}
-                onClick={() => handleRequest(asset)}
-                className={`mt-3 btn w-full text-white rounded-md ${
-                  asset.availableQuantity > 0 && !alreadyRequested
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  : "bg-gray-300 cursor-not-allowed"
-                }`}
-              >
-                {alreadyRequested ? "Requested" : "Request"}
-              </button>
+
+              {/* Request / Return button */}
+              {asset.productType === "Returnable" ? (
+                <button
+                  disabled={asset.availableQuantity < 1 && !alreadyRequested}
+                  onClick={() =>
+                    alreadyRequested
+                      ? handleReturn(asset)
+                      : handleRequest(asset)
+                  }
+                  className={`mt-3 btn w-full text-white rounded-md ${
+                    asset.availableQuantity > 0 && !alreadyRequested
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {alreadyRequested ? "Return" : "Request"}
+                </button>
+              ) : (
+                <button
+                  disabled={asset.availableQuantity < 1 || alreadyRequested}
+                  onClick={() => handleRequest(asset)}
+                  className={`mt-3 btn w-full text-white rounded-md ${
+                    asset.availableQuantity > 0 && !alreadyRequested
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {alreadyRequested ? "Requested" : "Request"}
+                </button>
+              )}
             </div>
-          )
+          );
         })}
       </div>
 
+      {/* Pagination Controls */}
+      <div className="flex justify-center gap-4 mt-4">
+        <button
+          onClick={() => setPage(page - 1)}
+          disabled={page === 1}
+          className="btn btn-sm btn-primary"
+        >
+          Previous
+        </button>
+        <span className="flex items-center">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages}
+          className="btn btn-sm btn-primary"
+        >
+          Next
+        </button>
+      </div>
+
       {/* My Requests */}
-      <div className="bg-white p-6 rounded-xl shadow-lg">
+      <div className="bg-white p-6 rounded-xl shadow-lg mt-8">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">Your Requests</h2>
         {requests.length === 0 ? (
           <p className="text-gray-500">No asset requests yet.</p>
         ) : (
           <ul className="space-y-4">
             {requests.map((req, index) => (
-              <li key={index} className="flex justify-between items-center p-4 border rounded-lg hover:shadow-md transition-all duration-300">
+              <li
+                key={index}
+                className="flex justify-between items-center p-4 border rounded-lg hover:shadow-md transition-all duration-300"
+              >
                 <span>
-                  <strong>{req.assetName}</strong> - {new Date(req.requestDate).toLocaleDateString()}
+                  <strong>{req.assetName}</strong> -{" "}
+                  {new Date(req.requestDate).toLocaleDateString()}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  req.requestStatus === "pending"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : req.requestStatus === "approved"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    req.requestStatus === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : req.requestStatus === "approved"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
                   {req.requestStatus}
                 </span>
               </li>

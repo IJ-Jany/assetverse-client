@@ -8,8 +8,7 @@ const UpgradePackage = ({ hrEmail }) => {
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5001/packages")
+    axios.get("http://localhost:5001/packages")
       .then((res) => {
         setPackages(res.data);
         setLoading(false);
@@ -25,10 +24,9 @@ const UpgradePackage = ({ hrEmail }) => {
     setMessage(null);
   };
 
-  // Confirm & Redirect to Stripe Checkout
   const handleConfirm = async () => {
     if (!selectedPackage) {
-      setMessage({ type: "error", text: "Please select a package." });
+      setMessage({ text: "Please select a package." });
       return;
     }
 

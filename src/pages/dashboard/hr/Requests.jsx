@@ -9,10 +9,18 @@ const Requests = () => {
   const { user } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
 
+  // Function to get JWT token
+  const getToken = () => localStorage.getItem("access-token");
+
   useEffect(() => {
     if (!user) return;
+
     axios
-      .get(`http://localhost:5001/hr-requests/${user.email}`)
+      .get(`http://localhost:5001/hr-requests/${user.email}`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      })
       .then((res) => {
         if (res.data.success) {
           setRequests(res.data.requests);
@@ -27,64 +35,97 @@ const Requests = () => {
       });
   }, [user]);
 
-  // Approve request with 5-employee limit
-const handleApprove = async (request) => {
-  if (!confirm("Approve this request?")) return;
+  // APPROVE EMPLOYEE REQUEST
+  const handleApprove = async (request) => {
+    if (!confirm("Approve this request?")) return;
 
-  try {
-    // 1️⃣ Fetch dynamic team size + package limit from server
-    const teamRes = await axios.get(
-      `http://localhost:5001/hr/team-members/${user.email}`
-    );
-
-    if (!teamRes.data.success) {
-      toast.error("Failed to fetch team members.");
-      return;
-    }
-
-    const teamSize = teamRes.data.currentCount;      // Current number of employees under this HR
-    const packageLimit = teamRes.data.packageLimit;  // Max employees allowed by package
-
-    console.log("Current Team Size:", teamSize, "Package Limit:", packageLimit);
-
-    // 2️⃣ Check if approving exceeds package limit
-    if (teamSize >= packageLimit) {
-      toast.error(
-        `Cannot accept request. You have reached your package limit of ${packageLimit} employees. Upgrade your package.`
+    try {
+      // 1️⃣ Get current team size + package limit
+      const teamRes = await axios.get(
+        `http://localhost:5001/hr/team-members/${user.email}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
       );
-      return;
-    }
 
-    // 3️⃣ Approve request via backend
-    const res = await axios.put(
-      `http://localhost:5001/requests/approve/${request._id}`
-    );
+      if (!teamRes.data.success) {
+        toast.error("Failed to fetch team members.");
+        return;
+      }
 
-    if (res.data.success) {
-      // 4️⃣ Update local requests state
-      setRequests((prev) =>
-        prev.map((r) =>
-          r._id === request._id ? { ...r, requestStatus: "approved" } : r
-        )
+      const teamSize = teamRes.data.currentCount;
+      const packageLimit = teamRes.data.employeeLimit;
+
+      // 2️⃣ Check limit
+      if (teamSize >= packageLimit) {
+        toast.error(
+          `Cannot approve. Your package limit is ${packageLimit}. Upgrade your package.`
+        );
+        return;
+      }
+
+      // 3️⃣ Approve Request
+      const res = await axios.put(
+        `http://localhost:5001/requests/approve/${request._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
       );
-      toast.success("Request approved successfully!");
-    } else {
-      toast.error("Failed to approve request.");
+
+      if (res.data.success) {
+        // 4️⃣ Create assigned-user record
+        await axios.post(
+          "http://localhost:5001/assigned-users",
+          {
+            hrEmail: user.email,
+            employeeEmail: request.requesterEmail,
+            employeeName: request.requesterName,
+            companyName: request.companyName,
+            assetName: request.assetName,
+            assignedDate: new Date(),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          }
+        );
+
+        // 5️⃣ Update UI
+        setRequests((prev) =>
+          prev.map((r) =>
+            r._id === request._id ? { ...r, requestStatus: "approved" } : r
+          )
+        );
+
+        toast.success("Request approved & employee assigned!");
+      } else {
+        toast.error("Failed to approve request.");
+      }
+    } catch (err) {
+      console.error("Approve Error:", err);
+      toast.error("Error approving request.");
     }
-  } catch (err) {
-    console.error("Approve Error:", err);
-    toast.error("Error approving request.");
-  }
-};
+  };
 
-
-  // Reject request
+  // REJECT REQUEST
   const handleReject = async (id) => {
     if (!confirm("Reject this request?")) return;
 
     try {
       const res = await axios.put(
-        `http://localhost:5001/requests/reject/${id}`
+        `http://localhost:5001/requests/reject/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
       );
 
       if (res.data.success) {
@@ -151,7 +192,7 @@ const handleApprove = async (request) => {
                 </td>
 
                 <td className="p-3 flex gap-3">
-                  {req.requestStatus === "pending" && (
+                  {req.requestStatus === "pending" ? (
                     <>
                       <button
                         onClick={() => handleApprove(req)}
@@ -167,9 +208,9 @@ const handleApprove = async (request) => {
                         <FaTimes />
                       </button>
                     </>
+                  ) : (
+                    <span>—</span>
                   )}
-
-                  {req.requestStatus !== "pending" && <span>—</span>}
                 </td>
               </tr>
             ))}

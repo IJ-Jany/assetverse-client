@@ -21,6 +21,10 @@ const MyTeam = () => {
         // Fetch team data
         const res = await axios.get(`http://localhost:5001/my-team/${user.email}`);
         if (res.data.success) {
+          console.log("Hrs:", res.data.hrs);
+          console.log("Colleagues:", res.data.colleagues);
+          console.log("Company:", res.data.company);
+
           setHrs(res.data.hrs);
           setColleagues(res.data.colleagues);
           setCompany(res.data.company);
@@ -45,7 +49,8 @@ const MyTeam = () => {
 
   if (loading) return <p>Loading team...</p>;
 
-  // Filter colleagues by selected company (future proof for multi-company)
+  // Since assignedUsersCollection handles relations,
+  // company filter still works (same company)
   const filteredColleagues = colleagues.filter(
     (c) => c.companyName === selectedCompany
   );
