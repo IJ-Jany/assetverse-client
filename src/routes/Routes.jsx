@@ -18,6 +18,12 @@ import Profile from "../pages/dashboard/Profile";
 import AssetsList from "../components/AssetsList";
 import HRRequests from "../pages/dashboard/hr/Requests";
 import PaySuccess from "../pages/payment/PaySuccess";
+import About from "../components/About";
+import FeaturesSection from "../components/Features";
+import Packages from "../components/Packages";
+import PrivateRoute from "./PrivateRoute";
+import HrRoute from "./HrRoute";
+import EmployeeRoute from "./EmployeeRoute";
 
 export const router = createBrowserRouter([
   {
@@ -28,10 +34,22 @@ export const router = createBrowserRouter([
       { path: "/",
         element: <Home />
       },
-      {
-        path:'/assets',
-       element: <AssetsList/>
-      }
+      // {
+      //   path:'/assets',
+      //  element: <AssetsList/>
+      // },
+       {
+            path:'/about',
+            element:<About/>
+          },
+            {
+            path:'/features',
+            element:<FeaturesSection/>
+          },
+            {
+            path:'/packages',
+            element:<Packages/>
+          }
     ]
   },
   {
@@ -47,7 +65,7 @@ export const router = createBrowserRouter([
     element: <RegisterHR /> },
      { 
     path: "/pay-success", 
-    element: <PaySuccess /> },
+    element:<PrivateRoute><HrRoute><PaySuccess /></HrRoute></PrivateRoute> },
   {
     path: "/dashboard",
     element: <DashboardLayout />,
@@ -56,41 +74,46 @@ export const router = createBrowserRouter([
       // Employee Routes
       { 
         path: "my-assets", 
-        element: <MyAssets />
+        element:<PrivateRoute>
+          <EmployeeRoute>
+            <MyAssets />
+            </EmployeeRoute></PrivateRoute>
        },
       {
          path: "my-team",
-         element: <MyTeam /> 
+         element:<PrivateRoute><EmployeeRoute><MyTeam /> </EmployeeRoute></PrivateRoute> 
       },
       {
          path: "request-asset",
-          element: <RequestAsset /> 
+          element:<PrivateRoute><EmployeeRoute><RequestAsset /> </EmployeeRoute></PrivateRoute> 
       },
 
       // HR Routes
       { 
         path: "assets",
-         element: <Assets /> 
+         element:<PrivateRoute><HrRoute><Assets /> </HrRoute></PrivateRoute> 
       },
       {
          path: "add-asset", 
-         element: <AddAsset /> 
+         element:<PrivateRoute><HrRoute><AddAsset /> </HrRoute></PrivateRoute> 
       },
       {
          path: "employee-list", 
-         element: <EmployeeList />
+         element:<PrivateRoute><HrRoute><EmployeeList></EmployeeList></HrRoute></PrivateRoute> 
       },
      
-{ path: "requests", element: <HRRequests /> },
+{ 
+  path: "requests",
+   element:<PrivateRoute><HrRoute><HRRequests /></HrRoute></PrivateRoute>  },
       { 
         path: "upgrade-package",
-         element: <UpgradePackage />
+         element: <PrivateRoute><HrRoute><UpgradePackage /></HrRoute></PrivateRoute>
        },
 
       // Profile
       { 
         path: "profile", 
-        element: <Profile />
+        element:<PrivateRoute><Profile /></PrivateRoute> 
        }
     ]
   }

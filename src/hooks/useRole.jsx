@@ -30,7 +30,7 @@ const useRole = (email) => {
     fetchRole();
   }, [email]);
 
-  return role; 
+  return {role,loading}; 
 };
 
 export default useRole;

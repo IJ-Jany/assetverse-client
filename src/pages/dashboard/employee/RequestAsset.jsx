@@ -8,13 +8,10 @@ const RequestAsset = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10; // items per page
+  const limit = 10; 
 
-  // Fetch assets for current page
   useEffect(() => {
     if (!user?.email) return;
     setLoading(true);

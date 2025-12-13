@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 const Assets = () => {
   const { user } = useContext(AuthContext);
+  console.log(user)
   const [assets, setAssets] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -20,8 +21,12 @@ const Assets = () => {
     if (!user?.email) return;
 
     axios
-      .get(`http://localhost:5001/assets/${user.email}`)
-      .then((res) => setAssets(res.data))
+      .get(`http://localhost:5001/hr/assets/${user.email}`,{
+        headers:{
+          Authorization:`Bearer ${user.accessToken}`
+        }
+      })
+      .then((res) => setAssets(res.data.assets))
       .catch((err) => console.error(err));
   }, [user]);
 

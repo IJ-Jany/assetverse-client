@@ -13,7 +13,8 @@ const Navbar = () => {
 
   const defaultAvatar = <FaUserCircle className="text-3xl text-gray-500" />;
 
-  if (user && loading) return null;
+const userRole = role?.trim().toLowerCase();
+  if ( loading) return null;
 
   return (
     <div className="navbar bg-white shadow-sm px-4 lg:px-8 sticky top-0 z-50">
@@ -36,7 +37,7 @@ const Navbar = () => {
             {user && (
               <li><NavLink to="/dashboard"><MdDashboardCustomize /> Dashboard</NavLink></li>
             )}
-           <li><NavLink to="/assets"><MdWork /> Assets</NavLink></li>
+          
           </ul>
         </div>
 
@@ -52,8 +53,6 @@ const Navbar = () => {
           {user && (
             <li><NavLink to="/dashboard" className="px-3 py-2 hover:bg-blue-50"><MdDashboardCustomize /> Dashboard</NavLink></li>
           )}
-
-            <li><NavLink to="/assets" className="px-3 py-2 hover:bg-blue-50"><MdWork /> Assets</NavLink></li>
         </ul>
       </div>
 
@@ -77,30 +76,29 @@ const Navbar = () => {
 
             <ul tabIndex={0} className="dropdown-content menu p-3 shadow bg-white rounded-box w-56">
         
-              {role === "employee" && (
+              {user && userRole === "employee" && (
                 <>
-                  <li><Link to="/my-assets"><MdWork /> My Assets</Link></li>
-                  <li><Link to="/my-team"><FaUsers /> My Team</Link></li>
-                  <li><Link to="/request-asset"><MdDashboardCustomize /> Request Asset</Link></li>
+                  <li><Link to="/dashboard/my-assets"><MdWork /> My Assets</Link></li>
+                  <li><Link to="/dashboard/my-team"><FaUsers /> My Team</Link></li>
+                  <li><Link to="/dashboard/request-asset"><MdDashboardCustomize /> Request Asset</Link></li>
                 </>
               )}
 
-           
-              {role === "hr" && (
+              {user && userRole === "hr" && (
                 <>
-                  <li><Link to="/assets"><MdWork /> Asset List</Link></li>
-                  <li><Link to="/add-asset"><MdDashboardCustomize /> Add Asset</Link></li>
-                  <li><Link to="/requests"><FaUsers /> All Requests</Link></li>
-                  <li><Link to="/employees"><FaUsers /> Employee List</Link></li>
-                  <li><Link to="/upgrade-package"><GiTakeMyMoney /> Upgrade Package</Link></li>
+                  <li><Link to="/dashboard/assets"><MdWork /> Asset List</Link></li>
+                  <li><Link to="/dashboard/add-asset"><MdDashboardCustomize /> Add Asset</Link></li>
+                  <li><Link to="/dashboard/requests"><FaUsers /> All Requests</Link></li>
+                  <li><Link to="/dashboard/employee-list"><FaUsers /> Employee List</Link></li>
+                  <li><Link to="/dashboard/upgrade-package"><GiTakeMyMoney /> Upgrade Package</Link></li>
                 </>
               )}
 
-              <li><Link to="/profile"><FaUserTie /> Profile</Link></li>
+              <li><Link to="/dashboard/profile"><FaUserTie /> Profile</Link></li>
               <li>
                 <button
                   onClick={logOut}
-                  className="btn mt-2 bg-gradient-to-r from-red-500 to-orange-500 text-white border-none shadow hover:scale-105"
+                  className="btn mt-2 bg-gradient-to-r  from-blue-600 to-purple-600 text-white border-none shadow hover:scale-105"
                 >
                   Logout
                 </button>

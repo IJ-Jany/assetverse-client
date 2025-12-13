@@ -14,7 +14,12 @@ import useRole from "../hooks/useRole";
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
-  const role = useRole(user?.email);
+
+  // 🔥 FIXED: Proper destructuring
+  const { role, loading } = useRole(user?.email);
+
+  // 🔥 Prevent sidebar from flashing before role loads
+  if (loading) return null;
 
   const menuItemClasses =
     "flex items-center gap-3 px-4 py-3 rounded-lg font-medium cursor-pointer transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 hover:text-blue-700";
@@ -48,6 +53,7 @@ const Sidebar = () => {
               </li>
             </>
           )}
+
           {role === "hr" && (
             <>
               <li>
@@ -86,7 +92,6 @@ const Sidebar = () => {
         </ul>
       </div>
 
- 
       <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col gap-3">
         <NavLink
           to="/dashboard/profile"

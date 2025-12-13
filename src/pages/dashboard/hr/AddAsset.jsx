@@ -44,14 +44,22 @@ const AddAsset = () => {
       }
 
  
-      const res = await axios.post("http://localhost:5001/assets", {
-        productName,
-        productImage: uploadedImageURL,
-        productType,
-        productQuantity: Number(productQuantity),
-        hrEmail: user.email,
-        companyName: "AssetVerse",
-      });
+    const res = await axios.post(
+  "http://localhost:5001/assets",
+  {
+    productName,
+    productImage: uploadedImageURL,
+    productType,
+    productQuantity: Number(productQuantity),
+    hrEmail: user.email,
+    companyName: "AssetVerse",
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${user.accessToken}`,
+    },
+  }
+);
 
       if (res.data.success) {
         toast.success("Asset added successfully!"); 

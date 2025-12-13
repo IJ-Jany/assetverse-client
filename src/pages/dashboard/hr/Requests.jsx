@@ -9,7 +9,7 @@ const Requests = () => {
   const { user } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
 
-  // Function to get JWT token
+
   const getToken = () => localStorage.getItem("access-token");
 
   useEffect(() => {
@@ -35,12 +35,10 @@ const Requests = () => {
       });
   }, [user]);
 
-  // APPROVE EMPLOYEE REQUEST
   const handleApprove = async (request) => {
     if (!confirm("Approve this request?")) return;
 
     try {
-      // 1️⃣ Get current team size + package limit
       const teamRes = await axios.get(
         `http://localhost:5001/hr/team-members/${user.email}`,
         {
@@ -58,15 +56,13 @@ const Requests = () => {
       const teamSize = teamRes.data.currentCount;
       const packageLimit = teamRes.data.employeeLimit;
 
-      // 2️⃣ Check limit
+  
       if (teamSize >= packageLimit) {
         toast.error(
           `Cannot approve. Your package limit is ${packageLimit}. Upgrade your package.`
         );
         return;
       }
-
-      // 3️⃣ Approve Request
       const res = await axios.put(
         `http://localhost:5001/requests/approve/${request._id}`,
         {},
@@ -78,7 +74,6 @@ const Requests = () => {
       );
 
       if (res.data.success) {
-        // 4️⃣ Create assigned-user record
         await axios.post(
           "http://localhost:5001/assigned-users",
           {
@@ -95,8 +90,6 @@ const Requests = () => {
             },
           }
         );
-
-        // 5️⃣ Update UI
         setRequests((prev) =>
           prev.map((r) =>
             r._id === request._id ? { ...r, requestStatus: "approved" } : r
@@ -113,7 +106,6 @@ const Requests = () => {
     }
   };
 
-  // REJECT REQUEST
   const handleReject = async (id) => {
     if (!confirm("Reject this request?")) return;
 
