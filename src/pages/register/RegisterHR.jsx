@@ -162,7 +162,7 @@ const RegisterHR = () => {
           
             <input
               type="password"
-              placeholder="Password (min 6 chars)"
+              placeholder="Password "
               className="input input-bordered w-full"
               {...register("password", {
                 required: "Password is required",

@@ -141,7 +141,7 @@ const RegisterEmployee = () => {
 
             <input
               type="password"
-              placeholder="Password (min 6 chars)"
+              placeholder="Password "
               className="input input-bordered w-full"
               {...register("password", { required: "Password is required", minLength: { value: 6, message: "Minimum 6 characters" } })}
             />

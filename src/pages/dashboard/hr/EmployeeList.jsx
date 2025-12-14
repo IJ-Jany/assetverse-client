@@ -94,7 +94,7 @@ const handleRemove = async (id) => {
 
               <button
                 onClick={() => handleRemove(emp._id)}
-                className="mt-3 px-3 py-1 bg-red-600 text-white rounded"
+                className="mt-3 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded"
               >
                 Remove
               </button>
