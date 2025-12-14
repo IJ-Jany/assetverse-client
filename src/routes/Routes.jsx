@@ -24,6 +24,7 @@ import Packages from "../components/Packages";
 import PrivateRoute from "./PrivateRoute";
 import HrRoute from "./HrRoute";
 import EmployeeRoute from "./EmployeeRoute";
+import HRDashboardPage from "../pages/dashboard/hr/HRDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
 
+
       // Employee Routes
       { 
         path: "my-assets", 
@@ -100,6 +102,10 @@ export const router = createBrowserRouter([
       {
          path: "employee-list", 
          element:<PrivateRoute><HrRoute><EmployeeList></EmployeeList></HrRoute></PrivateRoute> 
+      },
+      {
+        path:'hr-dashboard',
+        element:<PrivateRoute><HrRoute><HRDashboardPage></HRDashboardPage></HrRoute></PrivateRoute>
       },
      
 { 

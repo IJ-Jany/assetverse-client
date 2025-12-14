@@ -9,221 +9,157 @@ const Profile = () => {
 
   const [name, setName] = useState("");
   const [dob, setDob] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
 
-  const [affiliations, setAffiliations] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
-  const [packageInfo, setPackageInfo] = useState(null);
 
   const IMGBB_KEY = import.meta.env.VITE_IMGBB_KEY;
 
-  useEffect(() => {
-    if (user?.email) {
-      // Fetch user profile
-      axios
-        .get(`http://localhost:5001/users/${user.email}`)
-        .then((res) => {
-          const data = res.data.user;
-          setProfile(data);
+useEffect(() => {
+  if (!user?.email) return;
 
-          setName(data.name || "");
-          setDob(data.dateOfBirth || "");
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5001/users/${user.email}`);
+      const data = res.data.user;
 
-          // Show existing image or default one
-          setImagePreview(
-            data.profileImage || "https://i.ibb.co/ZT0J0Xh/user.png"
-          );
-              if (data.packageId) {
-          axios.get(`http://localhost:5001/packages/${data.packageId}`)
-            .then(res => setPackageInfo(res.data))
-            .catch(err => console.error(err));
+      setProfile(data);
+      setName(data.name || "");
+      let dobValue = "";
+      if (data.dateOfBirth) {
+        const d = new Date(data.dateOfBirth);
+        if (!isNaN(d)) {
+          dobValue = d.toISOString().split("T")[0]; 
         }
+      }
+      setDob(dobValue);
 
+   
+      setImagePreview(data.photo || user.photoURL || null);
 
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error(err.message);
-          setLoading(false);
-        },[user]);
-
-      // Fetch affiliations
-      axios
-        .get(`http://localhost:5001/employeeAffiliations/${user.email}`)
-        .then((res) => setAffiliations(res.data || []))
-        .catch((err) => console.error(err.message));
+    } catch (err) {
+      console.error("Fetch profile error:", err);
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
+  };
 
-  // Preview image
+  fetchProfile();
+}, [user]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfileImage(file);
+      setProfileImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  // Upload to imgbb
   const uploadToImgBB = async (file) => {
     const form = new FormData();
     form.append("image", file);
-
-    const uploadURL = `https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`;
-    const response = await axios.post(uploadURL, form);
+    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, form);
     return response.data.data.url;
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    setMessage(null);
+const handleSave = async () => {
+  if (!profile) return;
 
-    try {
-      let uploadedImageUrl = profile.profileImage;
+  setSaving(true);
+  setMessage(null);
 
-      // If user selected new image -> upload to imgbb
-      if (profileImage) {
-        uploadedImageUrl = await uploadToImgBB(profileImage);
-      }
+  try {
+    // Start with existing photo
+    let uploadedImageUrl = profile.photo || null;
 
-      const updatedData = {
-        name,
-        dateOfBirth: dob,
-        profileImage: uploadedImageUrl,
-      };
+    // Upload new image if selected
+    if (profileImageFile) {
+      const formData = new FormData();
+      formData.append("image", profileImageFile);
 
-      const res = await axios.put(
-        `http://localhost:5001/users/${user.email}`,
-        updatedData
+      const uploadRes = await fetch(
+        `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_KEY}`,
+        { method: "POST", body: formData }
       );
+      const uploadData = await uploadRes.json();
 
-      setProfile(res.data);
-      setMessage({ type: "success", text: "Profile updated successfully!" });
-    } catch (err) {
-      console.error(err);
-      setMessage({ type: "error", text: "Failed to update profile" });
-    } finally {
-      setSaving(false);
+      if (uploadData.success) {
+        uploadedImageUrl = uploadData.data.url;
+      } else {
+        throw new Error("Image upload failed");
+      }
     }
-  };
 
-  if (loading)
-    return (
-      <p className="p-6 text-center text-gray-500">Loading profile...</p>
-    );
+    // Prepare updated data
+    const updatedData = {
+      name,
+      photo: uploadedImageUrl,
+      dateOfBirth: dob,  // add DOB if needed
+    };
 
-  if (!profile)
-    return (
-      <p className="p-6 text-center text-red-500">No profile found</p>
-    );
+    // Save to backend
+    await axios.put(`http://localhost:5001/users/${user.email}`, updatedData);
+
+    // **Frontend e state update manually** → reload korleo same thakbe
+    setProfile(prev => ({ ...prev, ...updatedData }));
+    setImagePreview(uploadedImageUrl);
+    setMessage({ type: "success", text: "Profile updated successfully!" });
+
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    setMessage({ type: "error", text: "Failed to update profile" });
+  } finally {
+    setSaving(false);
+  }
+};
+
+
+
+
+  if (loading) return <p className="p-6 text-center text-gray-500">Loading profile...</p>;
+  if (!profile) return <p className="p-6 text-center text-red-500">No profile found</p>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 py-10">
       <div className="card w-full max-w-lg bg-base-100 shadow-xl p-6">
-        {/* Message */}
         {message && (
-          <p
-            className={`mb-4 px-4 py-2 rounded ${
-              message.type === "success"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
+          <p className={`mb-4 px-4 py-2 rounded ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
             {message.text}
           </p>
         )}
 
-        {/* Profile Image */}
         <div className="flex justify-center mb-4">
-          <img
-            src={imagePreview}
-            alt={name}
-            className="w-32 h-32 rounded-full border-4 border-primary object-cover"
-          />
-        </div>
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="mb-4 w-full"
-        />
-
-        {/* Name */}
-        <div className="mb-4">
-          <label className="block font-medium mb-1">Full Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input input-bordered w-full"
-          />
-        </div>
-
-        {/* Email (readonly) */}
-        <div className="mb-4">
-          <label className="block font-medium mb-1">Email</label>
-          <input
-            type="email"
-            value={profile.email}
-            readOnly
-            className="input input-bordered w-full bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-
-        {/* Date of Birth */}
-        <div className="mb-4">
-          <label className="block font-medium mb-1">Date of Birth</label>
-          <input
-            type="date"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-            className="input input-bordered w-full"
-          />
-        </div>
-
-        {/* Role */}
-        <p className="mb-4 badge badge-primary badge-outline">
-          {profile.role}
-        </p>
-
-        {/* Affiliations */}
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">Company Affiliations</h3>
-          {affiliations.length > 0 ? (
-            <ul className="list-disc pl-5">
-              {affiliations.map((a) => (
-                <li key={a._id}>
-                  {a.companyName} ({a.hrEmail})
-                </li>
-              ))}
-            </ul>
+          {imagePreview ? (
+            <img src={imagePreview} alt={name} className="w-32 h-32 rounded-full border-4 border-primary object-cover" />
           ) : (
-            <p className="text-gray-500">No company affiliations</p>
+            <div className="w-32 h-32 rounded-full border-4 border-primary flex items-center justify-center text-gray-400">
+              No Image
+            </div>
           )}
         </div>
-{/* Current Package */}
-<div className="mb-4">
-  <h3 className="font-medium mb-1">Current Package</h3>
-  {packageInfo ? (
-    <p>
-      {packageInfo.name} - Employee Limit: {packageInfo.limit}
-    </p>
-  ) : (
-    <p className="text-gray-500">No package purchased</p>
-  )}
-</div>
 
+        <input type="file" accept="image/*" onChange={handleImageChange} className="mb-4 w-full" />
 
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Full Name</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input input-bordered w-full" />
+        </div>
 
-        {/* Save Button */}
-        <button
-          className="btn btn-primary w-full"
-          onClick={handleSave}
-          disabled={saving}
-        >
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Email</label>
+          <input type="email" value={profile.email} readOnly className="input input-bordered w-full bg-gray-100 cursor-not-allowed" />
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Date of Birth</label>
+          <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="input input-bordered w-full" />
+        </div>
+
+        <p className="mb-4 badge badge-primary badge-outline">{profile.role}</p>
+
+        <button className="btn btn-primary w-full" onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Update Profile"}
         </button>
       </div>

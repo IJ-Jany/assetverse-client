@@ -18,7 +18,7 @@ const MyTeam = () => {
       setLoading(true);
 
       try {
-        // Fetch team data
+      
         const res = await axios.get(`http://localhost:5001/my-team/${user.email}`);
         if (res.data.success) {
           console.log("Hrs:", res.data.hrs);
@@ -31,7 +31,7 @@ const MyTeam = () => {
           setSelectedCompany(res.data.company);
         }
 
-        // Fetch birthdays
+      
         const resBirth = await axios.get(
           `http://localhost:5001/upcoming-birthdays?email=${user.email}`
         );

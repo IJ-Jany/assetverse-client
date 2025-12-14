@@ -33,27 +33,24 @@ const Assets = () => {
 
   // DELETE ASSET
   const handleDelete = async (id) => {
-    // Custom confirm
-    if (!window.confirm("Do you really want to delete this asset?")) {
-      toast.info("Delete cancelled");
-      return;
-    }
+    if (!window.confirm("Do you really want to delete this asset?")) return;
 
     try {
-      await axios.delete(`http://localhost:5001/assets/${id}`);
+      await axios.delete(`http://localhost:5001/assets/${id}`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      });
 
       setAssets((prev) => prev.filter((asset) => asset._id !== id));
 
-      toast.success("Asset deleted successfully!", {
-        autoClose: 1200,
-      });
-
+      toast.success("Asset deleted successfully!", { autoClose: 1200 });
     } catch (err) {
       toast.error("Delete failed!");
       console.error(err);
     }
   };
 
+
+  // ---------- EDIT/UPDATE FIXED PART START ----------
 
   // OPEN EDIT MODAL
   const handleEdit = (asset) => {
@@ -62,10 +59,10 @@ const Assets = () => {
     setEditModalOpen(true);
   };
 
-
   // SUBMIT EDIT
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedAsset) return;
 
     try {
       let updatedImageURL = selectedAsset.productImage;
@@ -93,7 +90,10 @@ const Assets = () => {
 
       await axios.put(
         `http://localhost:5001/assets/${selectedAsset._id}`,
-        updatedData
+        updatedData,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` }, // JWT header
+        }
       );
 
       toast.success("Asset updated successfully!");
@@ -106,12 +106,13 @@ const Assets = () => {
       );
 
       setEditModalOpen(false);
-
     } catch (err) {
-      toast.error("Update failed!");
       console.error(err);
+      toast.error("Update failed!");
     }
   };
+
+  // ---------- EDIT/UPDATE FIXED PART END ----------
 
 
   const filteredAssets = assets.filter((asset) =>

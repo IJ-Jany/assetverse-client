@@ -8,7 +8,6 @@ const MyAssets = () => {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("All");
   const [loading, setLoading] = useState(false);
-
   const fetchAssets = async () => {
     if (!user?.email) return;
     setLoading(true);
@@ -16,10 +15,10 @@ const MyAssets = () => {
       const res = await axios.get(
         `http://localhost:5001/employee/assets/${user.email}`
       );
-      console.log("Fetched assets:", res.data.assets);
-      if (res.data.success) setAssets(res.data.assets);
+      if (res.data.success) 
+        setAssets(res.data.assets || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch assets:", err);
     } finally {
       setLoading(false);
     }
@@ -27,15 +26,20 @@ const MyAssets = () => {
 
   useEffect(() => {
     fetchAssets();
-  }, [user]);
-  const filteredAssets = assets.filter((asset) => {
-    const matchesSearch = asset.assetName
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesType =
-      filterType === "All" ? true : asset.assetType === filterType;
-    return matchesSearch && matchesType;
-  });
+  }, [user?.email]);
+
+console.log(assets)
+const filteredAssets = assets.filter((asset) => {
+  console.log(asset)
+  const assetName = asset.productName || ""; 
+  const matchesSearch = assetName.toLowerCase().includes(search.toLowerCase());
+  const matchesType =
+    filterType === "All" ? true : asset.productType === filterType;
+  return matchesSearch && matchesType;
+});
+
+
+ 
   const handlePrint = () => {
     const printContent = document.getElementById("printableAssets");
     const WinPrint = window.open("", "", "width=900,height=650");
@@ -59,8 +63,9 @@ const MyAssets = () => {
     WinPrint.focus();
     WinPrint.print();
   };
+  
 
- 
+  // Return asset
   const handleReturn = async (assetId) => {
     if (!window.confirm("Are you sure you want to return this asset?")) return;
     try {
@@ -71,12 +76,12 @@ const MyAssets = () => {
         alert("Asset returned successfully!");
         setAssets((prevAssets) =>
           prevAssets.map((a) =>
-            a.assetId === assetId ? { ...a, status: "returned" } : a
+            a._id === assetId ? { ...a, status: "returned" } : a
           )
         );
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to return asset:", err);
       alert("Failed to return asset.");
     }
   };
@@ -128,20 +133,20 @@ const MyAssets = () => {
             </thead>
             <tbody>
               {filteredAssets.map((asset) => (
-                <tr key={asset.assetId} className="text-center">
+                <tr key={asset._id} className="text-center">
                   <td>
                     <img
-                      src={asset.assetImage || "/placeholder.png"}
-                      alt={asset.assetName}
+                      src={asset.productImage || "/placeholder.png"}
+                      alt={asset.productName}
                       className="w-16 h-16 object-cover mx-auto"
                     />
                   </td>
-                  <td>{asset.assetName}</td>
-                  <td>{asset.assetType}</td>
+                  <td>{asset.productName}</td>
+                  <td>{asset.productType}</td>
                   <td>{asset.companyName || "-"}</td>
                   <td>
-                    {asset.requestDate
-                      ? new Date(asset.requestDate).toLocaleDateString()
+                    {asset.dateAdded
+                      ? new Date(asset.dateAdded).toLocaleDateString()
                       : "-"}
                   </td>
                   <td>
@@ -151,11 +156,11 @@ const MyAssets = () => {
                   </td>
                   <td>{asset.status || "assigned"}</td>
                   <td>
-                    {asset.assetType === "Returnable" &&
+                    {asset.productType === "Returnable" &&
                     asset.status === "approved" ? (
                       <button
                         className="btn btn-sm btn-warning"
-                        onClick={() => handleReturn(asset.assetId)}
+                        onClick={() => handleReturn(asset._id)}
                       >
                         Return
                       </button>

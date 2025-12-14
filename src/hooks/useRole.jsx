@@ -17,7 +17,7 @@ const useRole = (email) => {
 
         console.log("ROLE API RESPONSE:", res.data);
 
-        
+        console.log(res.data.role)
         setRole(res.data?.role || "");
       } catch (error) {
         console.error("ERROR FETCHING ROLE:", error);
