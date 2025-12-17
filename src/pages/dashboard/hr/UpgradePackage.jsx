@@ -8,7 +8,7 @@ const UpgradePackage = ({ hrEmail }) => {
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:5001/packages")
+    axios.get("https://asset-server.vercel.app/packages")
       .then((res) => {
         setPackages(res.data);
         setLoading(false);
@@ -41,7 +41,7 @@ const UpgradePackage = ({ hrEmail }) => {
       };
 
       const result = await axios.post(
-        "http://localhost:5001/create-checkout-session",
+        "https://asset-server.vercel.app/create-checkout-session",
         paymentInfo
       );
 

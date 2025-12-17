@@ -13,7 +13,7 @@ const MyAssets = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:5001/employee/assets/${user.email}`
+        `https://asset-server.vercel.app/employee/assets/${user.email}`
       );
       if (res.data.success) 
         setAssets(res.data.assets || []);
@@ -28,9 +28,8 @@ const MyAssets = () => {
     fetchAssets();
   }, [user?.email]);
 
-console.log(assets)
 const filteredAssets = assets.filter((asset) => {
-  console.log(asset)
+ 
   const assetName = asset.productName || ""; 
   const matchesSearch = assetName.toLowerCase().includes(search.toLowerCase());
   const matchesType =
@@ -64,8 +63,6 @@ const filteredAssets = assets.filter((asset) => {
     WinPrint.print();
   };
   
-
-  // Return asset
   const handleReturn = async (assetId) => {
     if (!window.confirm("Are you sure you want to return this asset?")) return;
     try {

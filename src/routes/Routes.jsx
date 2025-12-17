@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
     children: [
 
 
-      // Employee Routes
+     
       { 
         path: "my-assets", 
         element:<PrivateRoute>
@@ -87,7 +87,6 @@ export const router = createBrowserRouter([
           element:<PrivateRoute><EmployeeRoute><RequestAsset /> </EmployeeRoute></PrivateRoute> 
       },
 
-      // HR Routes
       { 
         path: "assets",
          element:<PrivateRoute><HrRoute><Assets /> </HrRoute></PrivateRoute> 
@@ -113,7 +112,7 @@ export const router = createBrowserRouter([
          element: <PrivateRoute><HrRoute><UpgradePackage /></HrRoute></PrivateRoute>
        },
 
-      // Profile
+  
       { 
         path: "profile", 
         element:<PrivateRoute><Profile /></PrivateRoute> 

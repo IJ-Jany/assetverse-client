@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../../providers/AuthContext";
+import { data } from "react-router";
 
 const MyTeam = () => {
   const { user } = useContext(AuthContext);
@@ -19,8 +20,9 @@ const MyTeam = () => {
 
       try {
       
-        const res = await axios.get(`http://localhost:5001/my-team/${user.email}`);
+        const res = await axios.get(`https://asset-server.vercel.app/my-team/${user.email}`);
         if (res.data.success) {
+          console.log(res)
           console.log("Hrs:", res.data.hrs);
           console.log("Colleagues:", res.data.colleagues);
           console.log("Company:", res.data.company);
@@ -33,7 +35,7 @@ const MyTeam = () => {
 
       
         const resBirth = await axios.get(
-          `http://localhost:5001/upcoming-birthdays?email=${user.email}`
+          `https://asset-server.vercel.app/upcoming-birthdays?email=${user.email}`
         );
         setBirthdays(resBirth.data.birthdays || []);
 
@@ -49,8 +51,6 @@ const MyTeam = () => {
 
   if (loading) return <p>Loading team...</p>;
 
-  // Since assignedUsersCollection handles relations,
-  // company filter still works (same company)
   const filteredColleagues = colleagues.filter(
     (c) => c.companyName === selectedCompany
   );
@@ -59,7 +59,7 @@ const MyTeam = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">My Team</h2>
 
-      {/* Company Dropdown */}
+    
       <div className="mb-4">
         <label className="font-semibold">Select Company:</label>
         <select
@@ -71,7 +71,7 @@ const MyTeam = () => {
         </select>
       </div>
 
-      {/* HR Section */}
+    
       <h3 className="text-xl font-bold mb-2">My HR(s)</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -79,11 +79,12 @@ const MyTeam = () => {
 
         {hrs.map((hr) => (
           <div key={hr.email} className="bg-white p-4 rounded-lg shadow text-center">
-            <img
-              src={hr.photo || "https://via.placeholder.com/150"}
-              alt={hr.name}
-              className="w-24 h-24 rounded-full mx-auto mb-4"
-            />
+           <img
+  src={hr.companyLogo}
+  alt={hr.name}
+  className="w-24 h-24 rounded-full mx-auto mb-4"
+/>
+
             <h3 className="text-lg font-semibold">{hr.name}</h3>
             <p className="text-gray-500 text-sm">{hr.email}</p>
             <p className="text-gray-500 text-sm">{hr.position || "HR"}</p>
@@ -91,7 +92,7 @@ const MyTeam = () => {
         ))}
       </div>
 
-      {/* Colleague Section */}
+     
       <h3 className="text-xl font-bold mb-2">Colleagues</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -100,7 +101,7 @@ const MyTeam = () => {
         {filteredColleagues.map((emp) => (
           <div key={emp.email} className="bg-white p-4 rounded-lg shadow text-center">
             <img
-              src={emp.photo || "https://via.placeholder.com/150"}
+              src={emp.photo}
               alt={emp.name}
               className="w-24 h-24 rounded-full mx-auto mb-4"
             />
@@ -110,8 +111,6 @@ const MyTeam = () => {
           </div>
         ))}
       </div>
-
-      {/* Birthdays */}
       {birthdays.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-xl font-bold mb-4">

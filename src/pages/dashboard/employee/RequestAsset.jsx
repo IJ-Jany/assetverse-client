@@ -13,22 +13,18 @@ const RequestAsset = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const limit = 10;
-
-  // 🔐 auth header
   const getAuthHeader = async () => {
     const token = await user.getIdToken();
     return {
       Authorization: `Bearer ${token}`,
     };
   };
-
-  // ================= LOAD REQUESTS =================
   const loadRequests = async () => {
     if (!user?.email) return;
     try {
       const headers = await getAuthHeader();
       const res = await axios.get(
-        `http://localhost:5001/my-requests?email=${user.email}`,
+        `https://asset-server.vercel.app/my-requests?email=${user.email}`,
         { headers }
       );
       setRequests(res.data || []);
@@ -37,12 +33,11 @@ const RequestAsset = () => {
     }
   };
 
-  // ================= LOAD ASSETS =================
   const loadAssets = async () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:5001/assets?page=${page}&limit=${limit}`
+        `https://asset-server.vercel.app/assets?page=${page}&limit=${limit}`
       );
       setAssets(res.data.assets || []);
       setTotalPages(res.data.totalPages || 1);
@@ -60,13 +55,12 @@ const RequestAsset = () => {
     }
   }, [user, page]);
 
-  // ================= REQUEST ASSET =================
   const handleRequest = async (asset) => {
     try {
       const headers = await getAuthHeader();
 
       const res = await axios.post(
-        "http://localhost:5001/requests",
+        "https://asset-server.vercel.app/requests",
         {
           assetId: asset._id,
           assetName: asset.productName,
@@ -85,7 +79,7 @@ const RequestAsset = () => {
           type: "success",
           text: "Request sent successfully!",
         });
-        loadRequests(); // 🔥 always sync from server
+        loadRequests();
       }
     } catch (err) {
       console.error("REQUEST ERROR:", err.response?.data || err.message);
@@ -125,7 +119,7 @@ const RequestAsset = () => {
           return (
             <div key={asset._id} className="bg-white p-4 shadow rounded">
               <img
-                src={asset.productImage || "https://via.placeholder.com/150"}
+                src={asset.productImage}
                 alt={asset.productName}
                 className="h-40 w-full object-cover"
               />
@@ -145,8 +139,6 @@ const RequestAsset = () => {
           );
         })}
       </div>
-
-      {/* PAGINATION */}
       <div className="flex justify-center mt-6 gap-2">
         <button
           onClick={() => page > 1 && setPage(page - 1)}

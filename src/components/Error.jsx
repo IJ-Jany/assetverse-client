@@ -6,7 +6,7 @@ const Error = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate(-1); // Go to previous page
+    navigate(-1); 
   };
 
   return (
@@ -27,10 +27,9 @@ const Error = () => {
           Sorry, the page you are looking for could not be found.
         </p>
 
-        {/* Buttons */}
+  
         <div className="flex flex-col md:flex-row items-center justify-center gap-4">
 
-          {/* Back to previous page */}
           <button
             onClick={handleBack}
             className="btn bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-2 hover:scale-105 transition-transform duration-300"
@@ -38,7 +37,6 @@ const Error = () => {
             Go Back
           </button>
 
-          {/* Go back home */}
           <Link to="/">
             <button className="btn bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-2 hover:scale-105 transition-transform duration-300">
               Go Back Home

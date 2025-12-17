@@ -4,54 +4,55 @@ import { AuthContext } from "../../../providers/AuthContext";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 
 const Requests = () => {
   const { user } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
+  useEffect(() => {
+    if (!user?.email) return;
 
+    const fetchRequests = async () => {
+      try {
+        const headers = { Authorization: `Bearer ${user.accessToken}` };
 
-useEffect(() => {
-  if (!user?.email) return;
+        const res = await axios.get(
+          `https://asset-server.vercel.app/hr-requests/${user.email}`,
+          { headers }
+        );
 
-  const fetchRequests = async () => {
-    try {
-      const token = await user.getIdToken(true);
-      console.log("User email:", user.email);
-      console.log("Firebase token:", token);
+        if (res.data.success) setRequests(res.data.requests);
+        else toast.error(res.data.message || "Failed to fetch requests");
+      } catch (err) {
+        console.error("FETCH ERROR:", err.response?.data || err.message);
+        toast.error("Error fetching requests");
+      }
+    };
 
-      const headers = { Authorization: `Bearer ${token}` };
-
-      const res = await axios.get(
-        `http://localhost:5001/hr-requests/${user.email}`,
-        { headers }
-      );
-      console.log("HR Requests Response:", res.data);
-      if (res.data.success) setRequests(res.data.requests);
-    } catch (err) {
-      console.error("FETCH ERROR:", err.response?.data || err.message);
-    }
-  };
-
-  fetchRequests();
-}, [user]);
-
-
-  // ================= APPROVE =================
+    fetchRequests();
+  }, [user]);
   const handleApprove = async (request) => {
-    if (!window.confirm("Approve this request?")) return;
+    const result = await Swal.fire({
+      title: "Approve this request?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, approve",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const token = await user.getIdToken(true);
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = { Authorization: `Bearer ${user.accessToken}` };
 
       const res = await axios.put(
-        `http://localhost:5001/requests/approve/${request._id}`,
+        `https://asset-server.vercel.app/requests/approve/${request._id}`,
         {},
         { headers }
       );
 
       if (!res.data.success) {
-        toast.error("Failed to approve request");
+        toast.error(res.data.message || "Failed to approve request");
         return;
       }
 
@@ -68,39 +69,49 @@ useEffect(() => {
         err.response?.status,
         err.response?.data || err.message
       );
-      toast.error("Error approving request");
+      toast.error(err.response?.data?.message || "Error approving request");
     }
   };
-  const handleReject = async (id) => {
-    if (!window.confirm("Reject this request?")) return;
+
+  const handleReject = async (request) => {
+    const result = await Swal.fire({
+      title: "Reject this request?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, reject",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const token = await user.getIdToken(true);
-      const headers = { Authorization: `Bearer ${token}` };
+      const headers = { Authorization: `Bearer ${user.accessToken}` };
 
       const res = await axios.put(
-        `http://localhost:5001/requests/reject/${id}`,
+        `https://asset-server.vercel.app/requests/reject/${request._id}`,
         {},
         { headers }
       );
 
-      if (res.data.success) {
-        setRequests((prev) =>
-          prev.map((r) =>
-            r._id === id ? { ...r, requestStatus: "rejected" } : r
-          )
-        );
-        toast.success("Request rejected!");
-      } else {
-        toast.error("Failed to reject request");
+      if (!res.data.success) {
+        toast.error(res.data.message || "Failed to reject request");
+        return;
       }
+
+      setRequests((prev) =>
+        prev.map((r) =>
+          r._id === request._id ? { ...r, requestStatus: "rejected" } : r
+        )
+      );
+
+      toast.success("Request rejected successfully!");
     } catch (err) {
       console.error(
         "REJECT ERROR:",
         err.response?.status,
         err.response?.data || err.message
       );
-      toast.error("Error rejecting request");
+      toast.error(err.response?.data?.message || "Error rejecting request");
     }
   };
 
@@ -143,7 +154,7 @@ useEffect(() => {
                         <FaCheck />
                       </button>
                       <button
-                        onClick={() => handleReject(req._id)}
+                        onClick={() => handleReject(req)}
                         className="bg-red-600 text-white px-3 py-2 rounded"
                       >
                         <FaTimes />

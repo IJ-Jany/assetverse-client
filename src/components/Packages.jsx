@@ -8,7 +8,7 @@ const Packages = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5001/packages");
+        const { data } = await axios.get("https://asset-server.vercel.app/packages");
         setPackages(data);
       } catch (error) {
         console.error("Failed to fetch packages:", error);

@@ -45,7 +45,7 @@ const AddAsset = () => {
 
  
     const res = await axios.post(
-  "http://localhost:5001/assets",
+  "https://asset-server.vercel.app/assets",
   {
     productName,
     productImage: uploadedImageURL,

@@ -13,18 +13,26 @@ import { AuthContext } from "../providers/AuthContext";
 import useRole from "../hooks/useRole";
 
 const Sidebar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logOut } = useContext(AuthContext); 
   const { role, loading } = useRole(user?.email);
   const [open, setOpen] = useState(false);
 
   if (loading) return null;
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   const menuItemClasses =
     "flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100";
 
   return (
     <>
-      {/* ===== MOBILE TOP BAR ===== */}
+    
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between bg-white px-4 py-3 shadow">
         <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
           Dashboard
@@ -33,16 +41,12 @@ const Sidebar = () => {
           <FaBars className="text-2xl text-blue-600" />
         </button>
       </div>
-
-      {/* ===== OVERLAY ===== */}
       {open && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
-
-      {/* ===== SIDEBAR ===== */}
       <aside
         className={`
           fixed top-0 left-0 z-50 h-screen w-64 bg-white shadow-lg
@@ -52,7 +56,7 @@ const Sidebar = () => {
         `}
       >
         <div className="flex flex-col h-full justify-between p-6 overflow-y-auto">
-          {/* ===== HEADER ===== */}
+   
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
@@ -67,7 +71,6 @@ const Sidebar = () => {
               </button>
             </div>
 
-            {/* ===== MENU ===== */}
             <ul className="space-y-2">
               {role === "employee" && (
                 <>
@@ -161,7 +164,7 @@ const Sidebar = () => {
             </ul>
           </div>
 
-          {/* ===== FOOTER ===== */}
+       
           <div className="border-t pt-4 space-y-3">
             <NavLink
               onClick={() => setOpen(false)}
@@ -177,7 +180,7 @@ const Sidebar = () => {
             </NavLink>
 
             <button
-              onClick={logout}
+              onClick={handleLogout} 
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white"
             >
               <FaSignOutAlt /> Logout

@@ -11,16 +11,11 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex pt-14 lg:pt-0">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main content */}
       <div className="flex-1 p-6 lg:p-8 bg-gray-100 min-h-screen flex flex-col">
         <div className="flex-1">
           <Outlet />
         </div>
-
-        {/* HR Charts */}
         {role === "hr" && user?.email && (
           <div className="mt-8">
             <HRDashboardCharts email={user.email} />

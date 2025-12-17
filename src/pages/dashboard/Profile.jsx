@@ -22,7 +22,7 @@ useEffect(() => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/users/${user.email}`);
+      const res = await axios.get(`https://asset-server.vercel.app/users/${user.email}`);
       const data = res.data.user;
 
       setProfile(data);
@@ -71,10 +71,7 @@ const handleSave = async () => {
   setMessage(null);
 
   try {
-    // Start with existing photo
     let uploadedImageUrl = profile.photo || null;
-
-    // Upload new image if selected
     if (profileImageFile) {
       const formData = new FormData();
       formData.append("image", profileImageFile);
@@ -91,18 +88,12 @@ const handleSave = async () => {
         throw new Error("Image upload failed");
       }
     }
-
-    // Prepare updated data
     const updatedData = {
       name,
       photo: uploadedImageUrl,
-      dateOfBirth: dob,  // add DOB if needed
+      dateOfBirth: dob, 
     };
-
-    // Save to backend
-    await axios.put(`http://localhost:5001/users/${user.email}`, updatedData);
-
-    // **Frontend e state update manually** → reload korleo same thakbe
+    await axios.put(`https://asset-server.vercel.app/users/${user.email}`, updatedData);
     setProfile(prev => ({ ...prev, ...updatedData }));
     setImagePreview(uploadedImageUrl);
     setMessage({ type: "success", text: "Profile updated successfully!" });

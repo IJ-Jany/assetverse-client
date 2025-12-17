@@ -13,11 +13,7 @@ const useRole = (email) => {
 
     const fetchRole = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/user/role/${email}`);
-
-        console.log("ROLE API RESPONSE:", res.data);
-
-        console.log(res.data.role)
+        const res = await axios.get(`https://asset-server.vercel.app/user/role/${email}`);
         setRole(res.data?.role || "");
       } catch (error) {
         console.error("ERROR FETCHING ROLE:", error);

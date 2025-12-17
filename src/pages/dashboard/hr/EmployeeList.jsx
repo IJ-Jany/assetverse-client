@@ -15,7 +15,7 @@ const EmployeeList = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:5001/hr/team-members/${user.email}`,
+        `https://asset-server.vercel.app/hr/team-members/${user.email}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } }
       );
 
@@ -38,22 +38,21 @@ const EmployeeList = () => {
     fetchEmployees();
   }, [user]);
 
-const handleRemove = async (id) => {
-  const confirmDelete = window.confirm("Are you sure you want to remove this employee?");
-  if (!confirmDelete) return; // User clicked "Cancel"
+const handleRemove = async (employeeEmail) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to remove this employee from your team?"
+  );
+  if (!confirmDelete) return;
 
   try {
     const res = await axios.delete(
-      `http://localhost:5001/hr/remove-employee/${id}`,
-      {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-        data: { hrEmail: user.email }
-      }
+      `https://asset-server.vercel.app/hr/remove-employee/${employeeEmail}`,
+      { headers: { Authorization: `Bearer ${user.accessToken}` } }
     );
 
     if (res.data.success) {
-      toast.success("Employee removed successfully!");
-      fetchEmployees();
+      toast.success(res.data.message || "Employee removed from your team");
+      fetchEmployees(); 
     } else {
       toast.error(res.data.message || "Failed to remove employee");
     }
@@ -62,6 +61,9 @@ const handleRemove = async (id) => {
     toast.error("Something went wrong while removing employee");
   }
 };
+
+
+
 
 
 
@@ -92,12 +94,13 @@ const handleRemove = async (id) => {
               <p className="text-sm text-gray-500">{emp.email}</p>
               <p className="text-sm">Assets: {emp.assetsCount}</p>
 
-              <button
-                onClick={() => handleRemove(emp._id)}
-                className="mt-3 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded"
-              >
-                Remove
-              </button>
+            <button
+  onClick={() => handleRemove(emp.email)} 
+  className="mt-3 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded"
+>
+  Remove
+</button>
+
             </div>
           ))}
         </div>

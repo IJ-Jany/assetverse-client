@@ -3,10 +3,10 @@ import axios from "axios";
 import { AuthContext } from "../../../providers/AuthContext";
 import { FaEdit, FaTrash, FaUpload } from "react-icons/fa";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const Assets = () => {
   const { user } = useContext(AuthContext);
-  console.log(user)
   const [assets, setAssets] = useState([]);
   const [search, setSearch] = useState("");
 
@@ -16,12 +16,11 @@ const Assets = () => {
 
   const imgbbKey = import.meta.env.VITE_IMGBB_KEY;
 
-  // FETCH ASSETS
   useEffect(() => {
     if (!user?.email) return;
 
     axios
-      .get(`http://localhost:5001/hr/assets/${user.email}`,{
+      .get(`https://asset-server.vercel.app/hr/assets/${user.email}`,{
         headers:{
           Authorization:`Bearer ${user.accessToken}`
         }
@@ -30,13 +29,22 @@ const Assets = () => {
       .catch((err) => console.error(err));
   }, [user]);
 
-
-  // DELETE ASSET
   const handleDelete = async (id) => {
-    if (!window.confirm("Do you really want to delete this asset?")) return;
+  const result = await Swal.fire({
+  title: "Are you sure?",
+  text: "Do you really want to delete this asset?",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#d33",
+  cancelButtonColor: "#3085d6",
+  confirmButtonText: "Yes, delete it!",
+  cancelButtonText: "Cancel",
+});
+
+if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:5001/assets/${id}`, {
+      await axios.delete(`https://asset-server.vercel.app/assets/${id}`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
 
@@ -50,16 +58,12 @@ const Assets = () => {
   };
 
 
-  // ---------- EDIT/UPDATE FIXED PART START ----------
-
-  // OPEN EDIT MODAL
   const handleEdit = (asset) => {
     setSelectedAsset(asset);
     setUpdatedImage(null);
     setEditModalOpen(true);
   };
 
-  // SUBMIT EDIT
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!selectedAsset) return;
@@ -67,7 +71,6 @@ const Assets = () => {
     try {
       let updatedImageURL = selectedAsset.productImage;
 
-      // If new image uploaded
       if (updatedImage) {
         const formData = new FormData();
         formData.append("image", updatedImage);
@@ -89,7 +92,7 @@ const Assets = () => {
       };
 
       await axios.put(
-        `http://localhost:5001/assets/${selectedAsset._id}`,
+        `https://asset-server.vercel.app/assets/${selectedAsset._id}`,
         updatedData,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` }, // JWT header
@@ -98,7 +101,7 @@ const Assets = () => {
 
       toast.success("Asset updated successfully!");
 
-      // Update UI without refresh
+    
       setAssets((prev) =>
         prev.map((a) =>
           a._id === selectedAsset._id ? { ...a, ...updatedData } : a
@@ -112,7 +115,7 @@ const Assets = () => {
     }
   };
 
-  // ---------- EDIT/UPDATE FIXED PART END ----------
+
 
 
   const filteredAssets = assets.filter((asset) =>
@@ -153,7 +156,7 @@ const Assets = () => {
               <tr key={asset._id} className="border-b hover:bg-gray-50 transition">
                 <td className="p-3">
                   <img
-                    src={asset.productImage || "https://via.placeholder.com/80"}
+                    src={asset.productImage}
                     className="w-14 h-14 md:w-16 md:h-16 object-cover rounded-md shadow-sm"
                   />
                 </td>
@@ -171,15 +174,12 @@ const Assets = () => {
                 </td>
 
                 <td className="p-3 flex gap-2">
-                  {/* Edit */}
                   <button
                     className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 shadow-sm"
                     onClick={() => handleEdit(asset)}
                   >
                     <FaEdit />
                   </button>
-
-                  {/* Delete */}
                   <button
                     className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 shadow-sm"
                     onClick={() => handleDelete(asset._id)}
@@ -193,9 +193,6 @@ const Assets = () => {
           </tbody>
         </table>
       </div>
-
-
-      {/* EDIT MODAL */}
       {editModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
 

@@ -23,10 +23,8 @@ const HRDashboardCharts = ({ email }) => {
   const [topAssets, setTopAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // 🎨 Project theme colors
-  const PIE_COLORS = ["#93c5fd", "#c4b5fd"]; // blue-300, purple-300
-  const BAR_COLOR = "#2563eb"; // blue-600
+  const PIE_COLORS = ["#93c5fd", "#c4b5fd"]; 
+  const BAR_COLOR = "#2563eb"; 
 
   useEffect(() => {
     if (!user?.accessToken || role !== "hr") {
@@ -45,12 +43,12 @@ const HRDashboardCharts = ({ email }) => {
         };
 
         const returnRes = await axios.get(
-          "http://localhost:5001/returnable-assets",
+          "https://asset-server.vercel.app/returnable-assets",
           config
         );
 
         const topRes = await axios.get(
-          "http://localhost:5001/top-assets",
+          "https://asset-server.vercel.app/top-assets",
           config
         );
 
@@ -78,7 +76,6 @@ const HRDashboardCharts = ({ email }) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-      {/* ===== Pie Chart ===== */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-1 rounded-xl">
         <div className="bg-white p-4 sm:p-6 shadow rounded-lg">
           <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">
@@ -107,8 +104,6 @@ const HRDashboardCharts = ({ email }) => {
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* ===== Bar Chart ===== */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-1 rounded-xl">
         <div className="bg-white p-4 sm:p-6 shadow rounded-lg">
           <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">

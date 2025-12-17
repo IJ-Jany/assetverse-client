@@ -5,15 +5,12 @@ import axios from "axios";
 const HRDashboardPage = () => {
   const [returnableData, setReturnableData] = useState([]);
   const [topAssets, setTopAssets] = useState([]);
-
-  // Pie chart colors
   const COLORS = ["#0088FE", "#FF8042"];
 
   useEffect(() => {
-    // 1️⃣ Fetch assets and requests for Pie chart
     const fetchReturnableStats = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/assets"); // update URL if needed
+        const res = await axios.get("https://asset-server.vercel.app/assets");
         const assets = res.data.assets;
 
         const returnable = assets.filter(a => a.availableQuantity > 0).length;
@@ -28,13 +25,10 @@ const HRDashboardPage = () => {
       }
     };
 
-    // 2️⃣ Fetch top 5 requested assets
     const fetchTopAssets = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/requests"); // all requests
-        const requests = res.data.requests || res.data; // adapt if API returns different structure
-
-        // Count requests per asset
+        const res = await axios.get("https://asset-server.vercel.app/requests"); 
+        const requests = res.data.requests || res.data; 
         const counts = {};
         requests.forEach(req => {
           const name = req.assetName;
@@ -61,7 +55,6 @@ const HRDashboardPage = () => {
       <h1 className="text-2xl font-bold mb-4">HR Dashboard</h1>
 
       <div className="flex flex-col md:flex-row gap-10">
-        {/* Pie Chart */}
         <div className="bg-white p-6 rounded shadow-md flex-1">
           <h2 className="text-xl font-semibold mb-4">Returnable vs Non-returnable</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -85,8 +78,6 @@ const HRDashboardPage = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-
-        {/* Bar Chart */}
         <div className="bg-white p-6 rounded shadow-md flex-1">
           <h2 className="text-xl font-semibold mb-4">Top 5 Most Requested Assets</h2>
           <ResponsiveContainer width="100%" height={300}>
